@@ -4,9 +4,9 @@
 最近项目终于使用Jenkins作为自动化部署工具了，但发现jenkins的deploy plugin从官网上下载的最新版本只支持到Tomcat7，而项目使用的是Tomcat8。让 项目Tomcat降级为7可能性不大，也想过在github上的[deploy plugin](https://github.com/jenkinsci/deploy-plugin)拉分支来开发使其支持Tomcat8，结果发现其实已经有人做了这部分工作了，又可以坐享其成了
 
 ##操作步骤
-1.将deploy plugin下载下来
+1. 将deploy plugin下载下来
 `git clone https://github.com/jenkinsci/deploy-plugin.git`
-2.执行`mvn package`
+2. 执行`mvn package`
 报错
 ![mvn package](../screenshot/mvn-package.png)
 大概是说parent pom无法处理，google了一下，找到了解决方案

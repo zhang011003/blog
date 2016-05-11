@@ -5,6 +5,8 @@
 
 后续更新的blog就在这里列出，以日期分隔
 
+* 2016-05-10
+	* [babun使用](others/babun.md)
 * 2016-05-08
 	* [mac上的$JAVA_HOME环境变量设置](java/mac-java-home.md)
 	* [fish设置环境变量](others/fish-env-variables.md)

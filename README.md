@@ -5,6 +5,9 @@
 
 后续更新的blog就在这里列出，以日期分隔
 
+* 2016-5-31
+	* [eclipse启动报错](others/eclipse-startup-error.md)
+
 * 2016-05-10
 	* [babun使用](others/babun.md)
 * 2016-05-08

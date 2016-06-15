@@ -5,6 +5,10 @@
 
 后续更新的blog就在这里列出，以日期分隔
 
+* 2016-6-15
+	* [使用java将word转化为pdf](java/word-2-pdf.md)
+	（这段时间有点忙，并不是自己忘记维护了O(∩_∩)O~ ）
+
 * 2016-5-31
 	* [eclipse启动报错](others/eclipse-startup-error.md)
 

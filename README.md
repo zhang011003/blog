@@ -5,9 +5,12 @@
 
 后续更新的blog就在这里列出，以日期分隔
 
+* 2016-7-27
+	* [PHP环境搭建](php/php-begin.md)
+
 * 2016-07-01
 	* [redis也可以实现队列，为什么还要用rabitmq或者kafka?](java/why-other-mq.md)
-	
+
 * 2016-6-15
 	* [使用java将word转化为pdf](java/word-2-pdf.md)
 	（这段时间有点忙，并不是自己忘记维护了O(∩_∩)O~ ）

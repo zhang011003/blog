@@ -20,6 +20,7 @@ public class Test2 {
 1. bean validation是否能否满足？
 2. hibernate的扩展实现能否满足？
 3. 自己实现能否满足？
+
 下面分别进行分析
 ###bean validation是否能否满足？###
 查阅了一下bean validation，发现bean validation只提供了最基础的验证，比如`@Null,@NotNull`,显然是不满足需求的。

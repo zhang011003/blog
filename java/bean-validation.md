@@ -18,8 +18,12 @@ public class Test2 {
 
 ##分析##
 1. bean validation是否能否满足？
-查阅了一下bean validation，发现bean validation只提供了最基础的验证，比如`@Null,@NotNull`,显然是不满足需求的。
 2. hibernate的扩展实现能否满足？
+3. 自己实现能否满足？
+下面分别进行分析
+###bean validation是否能否满足？###
+查阅了一下bean validation，发现bean validation只提供了最基础的验证，比如`@Null,@NotNull`,显然是不满足需求的。
+### hibernate的扩展实现能否满足？###
 目前项目中使用的bean validation规范是hibernate的实现，具体还有什么实现没有去查。先打开一个注解，比如`@NotNull`,
 ```java
 @Target({ METHOD, FIELD, ANNOTATION_TYPE, CONSTRUCTOR, PARAMETER })
@@ -47,12 +51,13 @@ public class NotNullValidator implements ConstraintValidator<NotNull, Object> {
 ![ConstraintValidator实现](../screenshot/ConstraintValidator.png)
 查看一下，有一些好玩的validator，比如`ScriptAssertValidator`，对应的注解是`ScriptAssert`，可以在类上注解来判断类中两个属性的值是否满足需求。
 还有一个`ParameterScriptAssertValidator`，对应的注解是`ParameterScriptAssert`，可以在方法上注解来判断类中两个参数的值是否满足需求。
-这些注解的用法hibernate对应类中
+这些注解的用法hibernate都在对应的doc文档中有详细的描述。
 不过仔细查看了一下这些hibernate提供的注解，也没有满足需求的
-3. 自己实现能否满足？
+### 自己实现能否满足？###
 自己实现的话有两种方案：
-- 自己实现注解和`ConstraintValidator`接口，在Test2变量上或者Test类上进行注解
-- 自己手工进行业务逻辑判断，然后再调用bean validation提供的方法对Test2类进行验证，
+1. 自己实现注解和`ConstraintValidator`接口，在Test2变量上或者Test类上进行注解
+2. 自己手工进行业务逻辑判断，然后再调用bean validation提供的方法对Test2类进行验证
+
 如果自己实现注解和对应的接口，则可以参考上面提到的`ScriptAssertValidator`实现，具体的业务逻辑在脚本中实现，但实现起来难度较大。所以决定采用第二种方案来满足需求。
 ##解决##
 通过网上对bean validation使用方法的搜索，于是有了如下的工具类
@@ -94,6 +99,19 @@ public final class BeanValidator {
 }
 ```
 此时运行会报异常，
+```java
+javax.validation.ValidationException: HV000183: Unable to load 'javax.el.ExpressionFactory'. Check that you have the EL dependencies on the classpath, or use ParameterMessageInterpolator instead
+	at org.hibernate.validator.internal.engine.ValidatorFactoryImpl.createValidator(ValidatorFactoryImpl.java:339) ~[hibernate-validator-5.2.2.Final.jar:5.2.2.Final]
+	at org.hibernate.validator.internal.engine.ValidatorFactoryImpl.getValidator(ValidatorFactoryImpl.java:256) ~[hibernate-validator-5.2.2.Final.jar:5.2.2.Final]
+```
+可以参考这篇文章[Getting started with Hibernate Validator](http://hibernate.org/validator/documentation/getting-started/)，在pom文件中增加如下依赖
+```xml
+    <dependency>
+       <groupId>javax.el</groupId>
+       <artifactId>javax.el-api</artifactId>
+       <version>${javax-el.version}</version>
+    </dependency>
+```
 ##思考##
 刚开始遇到这个问题时，首先当然是想到用bean validation来对bean进行验证，显然不能通过bean validation提供的注解来完成对bean里嵌套的bean的验证，此时最容易想到的方法便是写代码对嵌套bean中属性的一一判断。虽然简单，但却失去了灵活性，通过进一步对bean validation的探寻，才能找到更好的方法。
 ##遗留问题##

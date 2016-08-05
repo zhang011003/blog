@@ -5,6 +5,8 @@
 
 后续更新的blog就在这里列出，以日期分隔
 
+* 2016-8-5
+	* [使用Bean Validation](java/bean-validation.md)
 * 2016-7-27
 	* [PHP环境搭建](php/php-begin.md)
 

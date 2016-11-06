@@ -6,7 +6,7 @@
 后续更新的blog就在这里列出，以日期分隔
 
 * 2016-11-6
-	* [Mybatis插件](../mybatis-plugins／README.md)
+	* [Mybatis插件](../mybatis-plugins/README.md)
     	(近段时间换了工作。新的公司无法上网，后续不能及时更新了)
 * 2016-8-26
     * [使用SpringEL实现通用导出](java/spring-el.md)

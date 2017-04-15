@@ -4,6 +4,8 @@
 先说说 [我为何现在才开始写博客](why-i-start-to-write-blog.md)。
 
 后续更新的blog就在这里列出，以日期分隔
+* 2017-4-15
+	* [安裝雨林木风win7操作系统遇到的问题](other/win7-install.md)
 * 2017-01-19 
 	* [Tomcat相关信息](java/tomcat.md)
 * 2016-11-6

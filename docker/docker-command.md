@@ -20,6 +20,7 @@ docker pull redis
 ```
 docker run --name myredis -d redis
 ```
+
 * --name
 标记该容器名称，如果没有，则为一串数字，
 * -d
@@ -30,6 +31,7 @@ docker run --name myredis -d redis
 docker run --rm -it --link myredis:redis redis /bin/bash
 ```
 其中
+
 * --link
 将两个容器连接了起来，比如上条命令即将myredis容器与新的redis容器连接
 * --rm
@@ -42,6 +44,7 @@ docker run --rm -it --link myredis:redis redis /bin/bash
 在该容器上执行的命令，也可以简单地写成bash。
 
 其它常用命令如下：
+
 * -v：将主机目录挂载到容器
 ```
 docker run -v /test:/test --rm -it redis bash
@@ -72,3 +75,4 @@ docker rm $(docker ps -aq)
 ```
 
 全部命令详细解释可参考官网 [docker命令](https://docs.docker.com/engine/reference/commandline/docker/)
+

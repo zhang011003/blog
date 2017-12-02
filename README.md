@@ -4,6 +4,11 @@
 先说说 [我为何现在才开始写博客](why-i-start-to-write-blog.md)。
 
 后续更新的blog就在这里列出，以日期分隔
+
+* 2017-12-02
+ 
+    * [使用RedisTemplate的操作类访问Redis](java/redis-template-usage.md)
+ 
 * 2017-11-25
 	* [docker学习笔记](docker/README.md)（最近在学习docker，才想起来好久没更新了。今天开始继续记录自己的学习心得吧。以后像这种具体的某项技能的学习系列就都放在一个固定的目录里而不是这样分散在这里了吧。）
 * 2017-4-15

@@ -66,7 +66,7 @@ Field listOps in sample.data.redis.SampleRedisApplication required a bean of typ
 
 我们现在找到了这个方法中：<T> T org.springframework.beans.TypeConverterDelegate.convertIfNecessary(String propertyName, Object oldValue, Object newValue, Class<T> requiredType, TypeDescriptor typeDescriptor) throws IllegalArgumentException方法，如下图：
 
-![redis-debug-doConvertValue](media/redis-debug-doConvertValue.png)
+![redis-debug-doConvertValue](../screenshot/redis-debug-doConvertValue.png)
 
 由于刚开始时editor为空，肯定代码会进入findDefaultEditor方法中，
 
@@ -94,10 +94,10 @@ Find a JavaBeans PropertyEditor following the 'Editor' suffix convention (e.g. "
 接下来看RedisTemplate类是如何来的。
 继续往下找，发现了getBean方法调用，如下：
 
-![redis-debug-getbean](media/redis-debug-getbean-2.png)
+![redis-debug-getbean](../screenshot/redis-debug-getbean.png)
 
 发现name属性已经是redisTemplate了，还需要再往下找调用的地方，最后找到了InjectionMetadata org.springframework.context.annotation.CommonAnnotationBeanPostProcessor.buildResourceMetadata(Class<?> clazz)中ReflectionUtils.doWithLocalFields中的doWith方法，如下图：
-![redis-debug-dowith](media/redis-debug-dowith.png)
+![redis-debug-dowith](../screenshot/redis-debug-dowith.png)
 此时可以看到spring解析了Resource注解，并通过name属性找到对应的bean，也就是redisTemplate了。
 
 Spring代码大概看完了，现在也就知道了@Autowired和@Resource注解的区别。

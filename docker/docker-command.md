@@ -26,7 +26,7 @@ docker run --name myredis -d redis
 * -d
 让容器在后台运行，detach单词缩写。
 
-现在redis已经启动了，接下来需要使用redis-cli连接该redis了，还是使用run命令
+现在redis已经启动了，接下来需要使用redis-cli连接该redis了，还是使用run命令(启动一个新的容器去连接之前的容器)
 ```
 docker run --rm -it --link myredis:redis redis /bin/bash
 ```
@@ -73,6 +73,9 @@ docker ps
 ```
 docker rm $(docker ps -aq)
 ```
-
+7.docker exec
+用于进入一个正在运行的容器。比如之前启动了redis服务，现在需要使用redis客户端连接服务端，可以执行如下命令
+```
+docker exec -it redis bash
+```
 全部命令详细解释可参考官网 [docker命令](https://docs.docker.com/engine/reference/commandline/docker/)
-

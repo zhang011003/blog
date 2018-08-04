@@ -57,6 +57,16 @@ docker run --volumes-from myredis --rm -it redis bash
 ```
 该命令将myredis目录挂载到新的redis容器中
 
+* --restart:指定容器的重启策略，可选的值：no（默认，不重启）、on-failure[:max-retries]（只有当容器退出状态为非0时才重启）、unless-stopped（除非容器被关闭或docker被关闭或重启，否则重启）、always（总是重启，感觉可以理解为安装成了服务）
+```
+docker run --restart=always redis
+```
+* --publish , -p：暴露指定端口到外部，格式：hostPort:containerPort，这样可以让外部主机通过宿主机暴露的端口来访问容器内的应用
+```
+docker run -p 6379:6379 redis
+```
+宿主机的redis客户端可以通过6379端口连接容器的redis
+
 3.docker ps
 用来查看启动的容器，这个命令比较简单
 ```

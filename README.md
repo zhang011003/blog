@@ -5,6 +5,9 @@
 
 后续更新的blog就在这里列出，以日期分隔
 
+* 2018-08-11 
+    * [又一次离职了](others/resign_again.md)
+    
 * 2017-12-02
  
     * [使用RedisTemplate的操作类访问Redis](java/redis-template-usage.md)

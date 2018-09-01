@@ -5,6 +5,9 @@
 
 后续更新的blog就在这里列出，以日期分隔
 
+* 2018-09-01
+    * [git密钥的配置](others/git_key.md)
+
 * 2018-08-11 
     * [又一次离职了](others/resign_again.md)
     

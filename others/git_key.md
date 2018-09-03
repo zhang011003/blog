@@ -24,23 +24,28 @@ ssh-keygen -t rsa -C "your.email@example.com" -b 4096
 
 这时在执行ssh-keygen命令时就不能一路回车了，看到`Enter file in which to save the key(/Users/xxx/.ssh/id_rsa):`的提示后，需要输入生成的rsa文件的路径以及rsa文件的名称，如果执行ssh-keygen命令时就在～/.ssh目录下，那可以直接键入rsa文件名称，比如输入test_rsa，然后再一路回车完成后，在～/.ssh 目录下就会生成两个文件test_rsa和test_rsa.pub文件，
 
-此时需要执行命令`ssh-add ~/.ssh/test_rsa`命令，并且需要在～/.ssh 目录下新建一个config文件，在里面填入如下rsa信息:
+此时需要在～/.ssh 目录下新建一个config文件，在里面填入如下rsa信息:
 
 ```
-Host xxxhost
+Host xxx                  //这里填git地址别名，写一个便于记忆的名字即可
         HostName xxx.com  //这里填git地址
-        User XXX
-        PreferredAuthentications publickey
-        IdentityFile ~/.ssh/test_rsa
+        User git          //这里必须是git，测试发现如果是别的用户名会报错
+        PreferredAuthentications publickey //如果注释，则公钥认证不通过则会使用密码认证
+        IdentityFile ~/.ssh/test_rsa //生成的rsa私钥的文件路径
+        AddKeysToAgent yes //将key增加到agent中，如果没有，则需要手工通过命令增加
+        UseKeychain yes    //mac中用到，应该是加到keychain中的意思。测试发现加不加没有什么区别 
 ```
 保存退出即可。
 
-==**（这里和gitlab上给的帮助说明有区别，使用gitlab的示例，会提示无法识别RSAAuthentication）**==
+**这里和gitlab上给的说明文档有区别，使用gitlab提供的示例，会提示无法识别RSAAuthentication**
 
-最后还可以进行测试，执行命令`ssh -Tv xxxhost`可以测试是否配置错误，如果还需要输入密码，说明配置是有错误的，需要重新检查哪里配错了。其中命令后面的参数是配置的host的值
+配置完成后进行测试，执行命令`ssh -Tv xxx`可以测试是否配置错误，如果还需要输入密码，说明配置是有错误的，需要重新检查哪里配错了。其中命令后面的参数是配置的host的值。
 
+如果配置成功后没有进行测试，那么需要使用命令`ssh-add ~/.ssh/test_rsa`手工增加key到agent中，否则执行`git pull`时仍然无法获取代码。
 
+如果按照上面那样配置的话，每回重启电脑还需要执行一下ssh-add命令，否则还是无法获取代码，网上查了很多资料都是说把这个命令写在启动脚本中，但我感觉这种方式不是很优雅，在我还没有找到更好的方法之前，先这样用吧。后续找到更好的方法再在这里补上。
 
+另外，研究了一个上午的ssh的公钥私钥配置，发现自己对ssh一点都不熟悉，看来需要恶补一下ssh的基础知识了。
 
 
 

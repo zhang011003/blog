@@ -4,7 +4,7 @@
 
 ```bash
 [zhang011003@localhost ~]$ sudo fdisk /dev/sda
-[sudo] password for zhangyu: 
+[sudo] password for zhang011003: 
 
 Welcome to fdisk (util-linux 2.32).
 Changes will remain in memory only, until you decide to write them.
@@ -98,7 +98,7 @@ Command (m for help): w
 The partition table has been altered.
 Syncing disks.
 
-[zhangyu@localhost ~]$ df -h
+[zhang011003@localhost ~]$ df -h
 Filesystem                               Size  Used Avail Use% Mounted on
 devtmpfs                                 2.0G     0  2.0G   0% /dev
 tmpfs                                    2.0G     0  2.0G   0% /dev/shm
@@ -109,10 +109,10 @@ tmpfs                                    2.0G   72K  2.0G   1% /tmp
 /dev/sda1                                976M  150M  759M  17% /boot
 D_DRIVE                                  932G   43G  889G   5% /media/sf_D_DRIVE
 tmpfs                                    395M  8.0M  387M   3% /run/user/1000
-/dev/sr0                                  56M   56M     0 100% /run/media/zhangyu/VBox_GAs_5.2.8
+/dev/sr0                                  56M   56M     0 100% /run/media/zhang011003/VBox_GAs_5.2.8
 
-[zhangyu@localhost ~]$ sudo fdisk -l
-[sudo] password for zhangyu: 
+[zhang011003@localhost ~]$ sudo fdisk -l
+[sudo] password for zhang011003: 
 Disk /dev/sda: 20 GiB, 21474836480 bytes, 41943040 sectors
 Units: sectors of 1 * 512 = 512 bytes
 Sector size (logical/physical): 512 bytes / 512 bytes
@@ -137,10 +137,10 @@ Units: sectors of 1 * 512 = 512 bytes
 Sector size (logical/physical): 512 bytes / 512 bytes
 I/O size (minimum/optimal): 512 bytes / 512 bytes
 
-[zhangyu@localhost ~]$ sudo pvcreate /dev/sda3
+[zhang011003@localhost ~]$ sudo pvcreate /dev/sda3
   Physical volume "/dev/sda3" successfully created.
 
-[zhangyu@localhost ~]$ sudo vgdisplay 
+[zhang011003@localhost ~]$ sudo vgdisplay 
   --- Volume group ---
   VG Name               fedora_localhost-live
   System ID             
@@ -163,11 +163,11 @@ I/O size (minimum/optimal): 512 bytes / 512 bytes
   VG UUID               xAtGSL-culJ-bFM1-xZrA-pQzA-Gien-mwYpXY
    
 
-[zhangyu@localhost ~]$ sudo vgextend /dev/mapper/fedora_localhost--live-root /dev/sda3
+[zhang011003@localhost ~]$ sudo vgextend /dev/mapper/fedora_localhost--live-root /dev/sda3
   Volume group name "fedora_localhost-live/root" has invalid characters.
   Cannot process volume group fedora_localhost-live/root
    
-[zhangyu@localhost ~]$ df -h
+[zhang011003@localhost ~]$ df -h
 Filesystem                               Size  Used Avail Use% Mounted on
 devtmpfs                                 2.0G     0  2.0G   0% /dev
 tmpfs                                    2.0G   32M  1.9G   2% /dev/shm
@@ -178,12 +178,12 @@ tmpfs                                    2.0G   72K  2.0G   1% /tmp
 /dev/sda1                                976M  150M  759M  17% /boot
 D_DRIVE                                  932G   43G  889G   5% /media/sf_D_DRIVE
 tmpfs                                    395M   11M  384M   3% /run/user/1000
-/dev/sr0                                  56M   56M     0 100% /run/media/zhangyu/VBox_GAs_5.2.8
+/dev/sr0                                  56M   56M     0 100% /run/media/zhang011003/VBox_GAs_5.2.8
 
-[zhangyu@localhost ~]$ sudo vgextend /dev/mapper/fedora_localhost--live /dev/sda3
+[zhang011003@localhost ~]$ sudo vgextend /dev/mapper/fedora_localhost--live /dev/sda3
   Volume group "fedora_localhost-live" successfully extended
    
-[zhangyu@localhost ~]$ sudo pvdisplay
+[zhang011003@localhost ~]$ sudo pvdisplay
   --- Physical volume ---
   PV Name               /dev/sda2
   VG Name               fedora_localhost-live
@@ -206,7 +206,7 @@ tmpfs                                    395M   11M  384M   3% /run/user/1000
   Allocated PE          0
   PV UUID               HTk1Nt-J0X5-qwir-pcna-G9x6-MH5P-cqKXyu
    
-[zhangyu@localhost ~]$ sudo lvdisplay
+[zhang011003@localhost ~]$ sudo lvdisplay
   --- Logical volume ---
   LV Path                /dev/fedora_localhost-live/swap
   LV Name                swap
@@ -241,13 +241,13 @@ tmpfs                                    395M   11M  384M   3% /run/user/1000
   - currently set to     256
   Block device           253:0
    
-[zhangyu@localhost ~]$ sudo lvextend -L+11G /dev/fedora_localhost-live/root
+[zhang011003@localhost ~]$ sudo lvextend -L+11G /dev/fedora_localhost-live/root
   Insufficient free space: 2816 extents needed, but only 2559 available
 
-[zhangyu@localhost ~]$ sudo lvextend /dev/fedora_localhost-live/root /dev/sda3
+[zhang011003@localhost ~]$ sudo lvextend /dev/fedora_localhost-live/root /dev/sda3
   Size of logical volume fedora_localhost-live/root changed from <8.00 GiB (2047 extents) to 17.99 GiB (4606 extents).
   Logical volume fedora_localhost-live/root successfully resized.
-[zhangyu@localhost ~]$ df -h
+[zhang011003@localhost ~]$ df -h
 Filesystem                               Size  Used Avail Use% Mounted on
 devtmpfs                                 2.0G     0  2.0G   0% /dev
 tmpfs                                    2.0G   42M  1.9G   3% /dev/shm
@@ -258,15 +258,15 @@ tmpfs                                    2.0G   72K  2.0G   1% /tmp
 /dev/sda1                                976M  150M  759M  17% /boot
 D_DRIVE                                  932G   43G  889G   5% /media/sf_D_DRIVE
 tmpfs                                    395M   13M  382M   4% /run/user/1000
-/dev/sr0                                  56M   56M     0 100% /run/media/zhangyu/VBox_GAs_5.2.8
+/dev/sr0                                  56M   56M     0 100% /run/media/zhang011003/VBox_GAs_5.2.8
 
-[zhangyu@localhost ~]$ sudo resize2fs /dev/fedora_localhost-live/root
+[zhang011003@localhost ~]$ sudo resize2fs /dev/fedora_localhost-live/root
 resize2fs 1.43.8 (1-Jan-2018)
 Filesystem at /dev/fedora_localhost-live/root is mounted on /; on-line resizing required
 old_desc_blocks = 1, new_desc_blocks = 3
 The filesystem on /dev/fedora_localhost-live/root is now 4716544 (4k) blocks long.
 
-[zhangyu@localhost ~]$ df -h
+[zhang011003@localhost ~]$ df -h
 Filesystem                               Size  Used Avail Use% Mounted on
 devtmpfs                                 2.0G     0  2.0G   0% /dev
 tmpfs                                    2.0G   36M  1.9G   2% /dev/shm
@@ -277,5 +277,5 @@ tmpfs                                    2.0G   72K  2.0G   1% /tmp
 /dev/sda1                                976M  150M  759M  17% /boot
 D_DRIVE                                  932G   43G  889G   5% /media/sf_D_DRIVE
 tmpfs                                    395M   13M  382M   4% /run/user/1000
-/dev/sr0                                  56M   56M     0 100% /run/media/zhangyu/VBox_GAs_5.2.8
+/dev/sr0                                  56M   56M     0 100% /run/media/zhang011003/VBox_GAs_5.2.8
 ```

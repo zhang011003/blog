@@ -5,6 +5,8 @@
 
 后续更新的blog就在这里列出，以日期分隔
 
+* 2018-12-27
+    - [spring boot条件注解配置](java/spring-boot-config.md)
 * 2018-11-19
     * [fedora扩容](others/fedora-extend.md)
 * 2018-09-01

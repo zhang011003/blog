@@ -7,7 +7,8 @@ hs-web是一个用于快速搭建企业后台管理系统的基础项目,集成�
 基本目录结构如下（以authorization为例）：
 ![hs-web项目图片](../../screenshot/hs-web.png)
 其中
-* hsweb-system-authorization-starter模块为starter模块，* hsweb-system-authorization-api模块包括service接口和entity实体类，
+* hsweb-system-authorization-starter模块为starter模块，
+* hsweb-system-authorization-api模块包括service接口和entity实体类，
 * hsweb-system-authorization-local模块包括service实现和dao接口，以及mybatis用到的mapper配置文件，
 * hsweb-system-authorization-web模块为controller
 
@@ -19,7 +20,8 @@ hs-web是一个用于快速搭建企业后台管理系统的基础项目,集成�
 先从权限管理看起。
 权限管理涉及到的模块有hsweb-authorization和hsweb-system-authorization。
 
-在demo中，增加了@EnableAopAuthorize的注解来启动AOP权限控制。@EnableAopAuthorize注解就定义在hsweb-authorization-basic模块中。@EnableAopAuthorize注解导入了两个类AopAuthorizeAutoConfiguration和AuthorizingHandlerAutoConfiguration。
+在demo中，增加了@EnableAopAuthorize的注解来启动AOP权限控制。
+@EnableAopAuthorize注解就定义在hsweb-authorization-basic模块中。该注解导入了两个类：AopAuthorizeAutoConfiguration和AuthorizingHandlerAutoConfiguration。
 AuthorizingHandlerAutoConfiguration类中定义了很多的bean，其中就有负责登录的AuthorizationController的bean定义，还定义了两个WebMvcConfigurer的bean，twoFactorHandlerConfigurer只有在配置文件中配置了属性hsweb.authorize.two-factor且enable=true的时候才有效，而另外的webUserTokenInterceptorConfigurer优先级最高，在这个configurer中，增加了一个用户令牌拦截器WebUserTokenInterceptor，它继承自org.springframework.web.servlet.handler.HandlerInterceptorAdapter类，在每次方法调用之前，先将request请求解析成ParsedToken，如果返回为空，则返回true，否则，可能是用户已经登录，先踢出旧的token，再将新的token保存到UserTokenHolder中，其实就是ThreadLocal变量中。
 AopAuthorizeAutoConfiguration类定义了两个比较重要的bean，DefaultAopMethodAuthorizeDefinitionParser类用来解析Authorize相关注解，而AopAuthorizingController类继承自org.springframework.aop.support.StaticMethodMatcherPointcutAdvisor，并且实现了org.springframework.boot.CommandLineRunner接口，这个类其实定义了一个切面，如果类定义了@Controller，@RestController注解，且方法定义了@Authorize注解，则会使用DefaultAopMethodAuthorizeDefinitionParser解析这些注解的方法，并返回是否支持。
 

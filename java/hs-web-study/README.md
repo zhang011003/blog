@@ -4,5 +4,5 @@ hs-web是基于SpringBoot的一套比较完成的企业后台管理系统框架�
 由于hs-web涉及的模块很多，只能一点点来记录了
 
 * 2019-01-11
-    - [简介、权限模块](hs-web-study1.md)
+    - [简介、权限模块](hs-web-authorization.md)
 

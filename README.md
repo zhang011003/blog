@@ -5,6 +5,8 @@
 
 后续更新的blog就在这里列出，以日期分隔
 * 2019-01-11
+    - [hs-web学习系列](java/hs-web-study/README.md)
+* 2019-01-11
     - [@SpringBootApplication注解](java/spring-boot-application.md)
 * 2018-12-27
     - [spring boot条件注解配置](java/spring-boot-config.md)

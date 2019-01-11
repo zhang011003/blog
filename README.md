@@ -4,15 +4,14 @@
 先说说 [我为何现在才开始写博客](why-i-start-to-write-blog.md)。
 
 后续更新的blog就在这里列出，以日期分隔
-
+* 2019-01-11
+    - [@SpringBootApplication注解](java/spring-boot-application.md)
 * 2018-12-27
     - [spring boot条件注解配置](java/spring-boot-config.md)
 * 2018-11-19
     * [fedora扩容](others/fedora-extend.md)
 * 2018-09-01
     * [git密钥的配置](others/git_key.md)
-* 2018-08-11 
-    * [又一次离职了](others/resign_again.md)
 * 2017-12-02
 
     * [使用RedisTemplate的操作类访问Redis](java/redis-template-usage.md)

@@ -1,4 +1,4 @@
-#@SpringBootApplication注解
+# @SpringBootApplication注解
 
 spring boot项目一般都会写如下代码来启动项目。
 
@@ -41,7 +41,74 @@ public @interface EnableAutoConfiguration {
 }
 ```
 会导入一个AutoConfigurationImportSelector的类。
-AutoConfigurationImportSelector类中selectImports方法其实就是在查找需要导入的@Configuration注解的类。selectImports方法会调用getCandidateConfigurations方法，在这里又会调用SpringFactoriesLoader类的静态方法loadFactoryNames，来获取classloader的jar包中所有META-INF/spring.factories中配置了key为EnableAutoConfiguration的所有类。
+AutoConfigurationImportSelector类中selectImports方法其实就是在查找需要导入的@Configuration注解的类。
+selectImports方法会调用getCandidateConfigurations方法，
+```java
+public String[] selectImports(AnnotationMetadata annotationMetadata) {
+	if (!isEnabled(annotationMetadata)) {
+		return NO_IMPORTS;
+	}
+	AutoConfigurationMetadata autoConfigurationMetadata = AutoConfigurationMetadataLoader
+			.loadMetadata(this.beanClassLoader);
+	AnnotationAttributes attributes = getAttributes(annotationMetadata);
+	List<String> configurations = getCandidateConfigurations(annotationMetadata,
+			attributes);
+	configurations = removeDuplicates(configurations);
+	Set<String> exclusions = getExclusions(annotationMetadata, attributes);
+	checkExcludedClasses(configurations, exclusions);
+	configurations.removeAll(exclusions);
+	configurations = filter(configurations, autoConfigurationMetadata);
+	fireAutoConfigurationImportEvents(configurations, exclusions);
+	return StringUtils.toStringArray(configurations);
+}
+protected List<String> getCandidateConfigurations(AnnotationMetadata metadata,
+		AnnotationAttributes attributes) {
+	List<String> configurations = SpringFactoriesLoader.loadFactoryNames(
+			getSpringFactoriesLoaderFactoryClass(), getBeanClassLoader());
+	Assert.notEmpty(configurations,
+			"No auto configuration classes found in META-INF/spring.factories. If you "
+					+ "are using a custom packaging, make sure that file is correct.");
+	return configurations;
+}
+```
+在这里又会调用SpringFactoriesLoader类的静态方法loadFactoryNames，来获取classloader的jar包中所有META-INF/spring.factories中配置了key为EnableAutoConfiguration的所有类。
+```java
+public static List<String> loadFactoryNames(Class<?> factoryClass, @Nullable ClassLoader classLoader) {
+	String factoryClassName = factoryClass.getName();
+	return loadSpringFactories(classLoader).getOrDefault(factoryClassName, Collections.emptyList());
+}
+
+private static Map<String, List<String>> loadSpringFactories(@Nullable ClassLoader classLoader) {
+	MultiValueMap<String, String> result = cache.get(classLoader);
+	if (result != null) {
+		return result;
+	}
+
+	try {
+		Enumeration<URL> urls = (classLoader != null ?
+				classLoader.getResources(FACTORIES_RESOURCE_LOCATION) :
+				ClassLoader.getSystemResources(FACTORIES_RESOURCE_LOCATION));
+		result = new LinkedMultiValueMap<>();
+		while (urls.hasMoreElements()) {
+			URL url = urls.nextElement();
+			UrlResource resource = new UrlResource(url);
+			Properties properties = PropertiesLoaderUtils.loadProperties(resource);
+			for (Map.Entry<?, ?> entry : properties.entrySet()) {
+				List<String> factoryClassNames = Arrays.asList(
+						StringUtils.commaDelimitedListToStringArray((String) entry.getValue()));
+				result.addAll((String) entry.getKey(), factoryClassNames);
+			}
+		}
+		cache.put(classLoader, result);
+		return result;
+	}
+	catch (IOException ex) {
+		throw new IllegalArgumentException("Unable to load factories from location [" +
+				FACTORIES_RESOURCE_LOCATION + "]", ex);
+	}
+}
+```
+
 打开spring-boot-autoconfigure-x.x.x.jar包，可以看到META-INF/spring.factories中配置了很多，这些在启动的时候都会自动实例化
 ```
 # Auto Configure

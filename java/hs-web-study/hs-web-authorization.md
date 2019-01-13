@@ -1,20 +1,5 @@
-# hs-web简介、权限模块
-## 简介
-hs-web是一个用于快速搭建企业后台管理系统的基础项目,集成一揽子便捷功能如:通用增删改查，在线代码生成，权限管理，OAuth2.0 ,动态多数据源分布式事务，动态脚本，动态定时任务，在线数据库维护等等. 基于 spring-boot,mybaits。项目地址 [hs-web-framework](https://github.com/hs-web/hsweb-framework)。
+# hs-web权限模块
 
-## 目录结构
-该项目的所有功能功能都是通过SpringBoot的starter的方式动态增加的，这点要牢记。
-基本目录结构如下（以authorization为例）：
-![hs-web项目图片](../../screenshot/hs-web.png)
-其中
-* hsweb-system-authorization-starter模块为starter模块，
-* hsweb-system-authorization-api模块包括service接口和entity实体类，
-* hsweb-system-authorization-local模块包括service实现和dao接口，以及mybatis用到的mapper配置文件，
-* hsweb-system-authorization-web模块为controller
-
-看懂一个具体的模块，其它模块都是类似的结构，就非常好理解了。
-
-下面就看具体的功能实现了。
 
 ## 权限管理
 先从权限管理看起。
@@ -46,6 +31,67 @@ public boolean matches(Method method, Class<?> aClass) {
 解析完成后，会在run中发布AuthorizeDefinitionInitializedEvent事件。通过搜索，发现在hsweb-system-authorization-starter的AutoSyncPermission类监听了AuthorizeDefinitionInitializedEvent事件，在onApplicationEvent方法中，会获取到所有解析到AuthorizeDefinition实例，然后会创建对应的实体，根据注解@ApiModelProperty设置名称，最后更新到数据库中。
 
 AopAuthorizingController的构造方法传入了一个MethodInterceptor实例，其实就是在mathes方法返回true后动态调用该方法时执行的切面。这个要注意，**matches是静态判断方法是否匹配，如果匹配，则动态调用该方法时MethodInterceptor实例对应的invoke方法就会执行，也就是该类构造方法中传入的lambda表达式。** 在这个lambda表达式中，会判断如果Authentication.current()有值，则获取Authentication实例，否则抛出未授权异常。获取到Authentication实例后，就根据方法定义时的注解进行相应的权限判断。
+
+这里其实我感觉使用Spring security做起来更方便一些，不太清楚作者为何舍弃现有的成熟框架而自己重新发明轮子。
+
+为了能看懂是如何鉴权的，我们需要先了解登录具体做了哪些事情
+
+继续看AopAuthorizingController类构造方法的lambda表达式。为了便于说明，先把这部分代码贴出来。
+```java
+boolean isControl = false;
+if (null != definition) {
+    Authentication authentication = Authentication.current().orElseThrow(UnAuthorizedException::new);
+    //空配置也进行权限控制
+//                if (!definition.isEmpty()) {
+
+    AuthorizingContext context = new AuthorizingContext();
+    context.setAuthentication(authentication);
+    context.setDefinition(definition);
+    context.setParamContext(paramContext);
+    isControl = true;
+
+    Phased dataAccessPhased = null;
+    if (definition.getDataAccessDefinition() != null) {
+        dataAccessPhased = definition.getDataAccessDefinition().getPhased();
+    }
+    if (definition.getPhased() == Phased.before) {
+        //RDAC before
+        authorizingHandler.handRBAC(context);
+
+        //方法调用前验证数据权限
+        if (dataAccessPhased == Phased.before) {
+            authorizingHandler.handleDataAccess(context);
+        }
+
+        result = methodInvocation.proceed();
+
+        //方法调用后验证数据权限
+        if (dataAccessPhased == Phased.after) {
+            context.setParamContext(holder.createParamContext(result));
+            authorizingHandler.handleDataAccess(context);
+        }
+    } else {
+        //方法调用前验证数据权限
+        if (dataAccessPhased == Phased.before) {
+            authorizingHandler.handleDataAccess(context);
+        }
+
+        result = methodInvocation.proceed();
+        context.setParamContext(holder.createParamContext(result));
+
+        authorizingHandler.handRBAC(context);
+
+        //方法调用后验证数据权限
+        if (dataAccessPhased == Phased.after) {
+            authorizingHandler.handleDataAccess(context);
+        }
+    }
+//                }
+}
+if (!isControl) {
+    result = methodInvocation.proceed();
+}
+```
 
 
 

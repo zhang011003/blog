@@ -1,8 +1,7 @@
 # hs-web权限模块
 
-
 ## 权限管理
-先从权限管理看起。
+
 权限管理涉及到的模块有hsweb-authorization和hsweb-system-authorization。
 
 在demo中，增加了@EnableAopAuthorize的注解来启动AOP权限控制。
@@ -33,8 +32,6 @@ public boolean matches(Method method, Class<?> aClass) {
 AopAuthorizingController的构造方法传入了一个MethodInterceptor实例，其实就是在mathes方法返回true后动态调用该方法时执行的切面。这个要注意，**matches是静态判断方法是否匹配，如果匹配，则动态调用该方法时MethodInterceptor实例对应的invoke方法就会执行，也就是该类构造方法中传入的lambda表达式。** 在这个lambda表达式中，会判断如果Authentication.current()有值，则获取Authentication实例，否则抛出未授权异常。获取到Authentication实例后，就根据方法定义时的注解进行相应的权限判断。
 
 这里其实我感觉使用Spring security做起来更方便一些，不太清楚作者为何舍弃现有的成熟框架而自己重新发明轮子。
-
-为了能看懂是如何鉴权的，我们需要先了解登录具体做了哪些事情
 
 继续看AopAuthorizingController类构造方法的lambda表达式。为了便于说明，先把这部分代码贴出来。
 ```java

@@ -1,6 +1,6 @@
-#hs-web登录
+# hs-web登录
 
-##hs-web登录启动
+## hs-web登录启动
 
 在main方法所在类增加@EnableAopAuthorize注解启动登录功能，不过貌似如果去掉对应的注解，还是会调用登录的接口。所以登录是必须的。
 
@@ -10,7 +10,9 @@
 
 在doLogin方法中，先发布AuthorizationDecodeEvent事件，再发布AuthorizationBeforeEvent事件，再调用到SimpleAuthenticationManager的authenticate方法，如果没抛出异常，则发布AuthorizationSuccessEvent事件，如果抛出异常，发布AuthorizationFailedEvent事件。
 
-在SimpleAuthenticationManager的authenticate方法中，先到数据库查询对应的用户名是否存在。如果存在，则在getByUserId方法中通过查询出的id构造Authentication对象并返回。
+在SimpleAuthenticationManager的authenticate方法中，先到数据表s_user中查询对应的用户名是否存在。如果存在，则在getByUserId方法中通过查询出的id构造Authentication对象并返回。
+
+后续的操作都是获取用户的权限数据，需要了解权限表设计。[数据表设计](hs-web-db.md)
 
 getByUserId方法先判断是否存在key为userId的缓存，如果不存在，则调用SimpleAuthorizationSettingService类的initUserAuthorization方法来获取，之后存入缓存。
 
@@ -63,13 +65,42 @@ public Authentication initUserAuthorization(String userId) {
 ```
 
 分为如下几步：
-1. 通过userId查到UserEntity对象，实例化SimpleAuthentication类并设置user为SimpleUser，
-2. 通过userId查到RoleEntity对象，并设置role为SimpleRole，
+1. 通过userId查询表s_user获取UserEntity对象，实例化SimpleAuthentication类并设置user为SimpleUser，
+2. 通过userId查询表s_user_role获取RoleEntity对象，并设置role为SimpleRole，
 3. 通过userId调用getUserSetting方法获取AuthorizationSettingEntity，
 4. 取出AuthorizationSettingEntity的id，并查询s_autz_detail表获取setting_id匹配的AuthorizationSettingDetailEntity，
 5. 调用initPermission将AuthorizationSettingDetailEntity转化为Permission。
 
-前两步较简单。第3步中，循环调用authorizationSettingTypeSuppliers中的get方法，然后通过SettingInfo的type分组，如果有多个分组，则使用并行调用，再查询type和settingFor匹配的结果。其中AuthorizationSettingTypeSupplier实例为SimpleUserService，所以调用的是SimpleUserService的get方法，SimpleUserService的get方法代码如下：
+前两步较简单。
+
+第3步中，getUserSetting方法中，循环调用authorizationSettingTypeSuppliers中的get方法，然后通过SettingInfo的type分组，如果有多个分组，则使用并行调用，再查询表s_autz_setting获取type和settingFor匹配的结果。
+
+```java
+private List<AuthorizationSettingEntity> getUserSetting(String userId) {
+    Map<String, List<SettingInfo>> settingInfo =
+            authorizationSettingTypeSuppliers.stream()
+                    .map(supplier -> supplier.get(userId))
+                    .flatMap(Set::stream)
+                    .collect(Collectors.groupingBy(SettingInfo::getType));
+    Stream<Map.Entry<String, List<SettingInfo>>> settingInfoStream = settingInfo.entrySet().stream();
+    //大于1 使用并行处理
+    if (settingInfo.size() > 1) {
+        settingInfoStream = settingInfoStream.parallel();
+    }
+    return settingInfoStream
+            .map(entry ->
+                    createQuery()
+                            // where type = ? and setting_for in (?,?,?....)
+                            .where(type, entry.getKey())
+                            .and()
+                            .in(settingFor, entry.getValue().stream().map(SettingInfo::getSettingFor).collect(Collectors.toList()))
+                            .listNoPaging())
+            .flatMap(List::stream)
+            .collect(Collectors.toList());
+}
+```
+
+其中AuthorizationSettingTypeSupplier实例为SimpleUserService，所以调用的是SimpleUserService的get方法，SimpleUserService的get方法代码如下：
 
 ```java
 public Set<SettingInfo> get(String userId) {
@@ -88,7 +119,7 @@ public Set<SettingInfo> get(String userId) {
 }
 ```
 
-逻辑是先通过userId查询记录，再通过userId查询角色实体UserRoleEntity，并转化为相应的SettingInfo实例后返回。
+逻辑是先通过userId查询记录，再通过userId查询表s_user_role获取角色实体UserRoleEntity，并转化为相应的SettingInfo实例后返回。
 
 第5步的逻辑在方法initPermission中。
 

@@ -244,4 +244,86 @@ private List<Permission> initPermission(List<AuthorizationSettingDetailEntity> d
 6. 将ParentPermission转化为SimplePermission对象
 7. 返回所有的SimplePermission对象
 
+现在我们再看AuthorizationController的doLogin方法在调用authenticate方法验证通过后发布的AuthorizationSuccessEvent事件，查找AuthorizationSuccessEvent事件后发现系统中有监听该事件的类：UserOnSignIn，在hsweb-authorization-basic模块中。
+
+```java
+@Override
+public void onApplicationEvent(AuthorizationSuccessEvent event) {
+    UserToken token = UserTokenHolder.currentToken();
+    String tokenType = (String) event.getParameter("token_type").orElse(defaultTokenType);
+
+    if (token != null) {
+        //先退出已登陆的用户
+        userTokenManager.signOutByToken(token.getToken());
+    }
+    //创建token
+    GeneratedToken newToken = userTokenGenerators.stream()
+            .filter(generator -> generator.getSupportTokenType().equals(tokenType))
+            .findFirst()
+            .orElseThrow(() -> new UnsupportedOperationException(tokenType))
+            .generate(event.getAuthentication());
+    //登入
+    userTokenManager.signIn(newToken.getToken(), newToken.getType(), event.getAuthentication().getUser().getId(), newToken.getTimeout());
+
+    //响应结果
+    event.getResult().putAll(newToken.getResponse());
+
+}
+```
+
+逻辑如下：
+1. 获取参数token_type字段，默认为sessionId
+2. 如果用户登录，则先退出
+3. 通过userTokenGenerators的generate方法创建token
+4. 调用userTokenManager的signIn登录
+
+第三步中的userTokenGenerators中缓存着的UserTokenGenerator接口的实现的实例。默认有两个实现。先看SessionIdUserTokenGenerator。SessionIdUserTokenGenerator中generate方法其实就是使用sessionId作为token的，只是封装为GeneratedToken对象罢了。
+
+第四步中userTokenManager接口实现为DefaultUserTokenManager，看signIn方法
+
+```java
+public UserToken signIn(String token, String type, String userId, long maxInactiveInterval) {
+    SimpleUserToken detail = new SimpleUserToken(userId, token);
+    detail.setType(type);
+    detail.setMaxInactiveInterval(maxInactiveInterval);
+    AllopatricLoginMode mode = allopatricLoginModes.getOrDefault(type, allopatricLoginMode);
+    if (mode == AllopatricLoginMode.deny) {
+        boolean hasAnotherToken = getByUserId(userId)
+                .stream()
+                .filter(userToken -> type.equals(userToken.getType()))
+                .map(SimpleUserToken.class::cast)
+                .peek(this::checkTimeout)
+                .anyMatch(UserToken::isNormal);
+        if (hasAnotherToken) {
+            throw new AccessDenyException("该用户已在其他地方登陆");
+        }
+    } else if (mode == AllopatricLoginMode.offlineOther) {
+        //将在其他地方登录的用户设置为离线
+        List<UserToken> oldToken = getByUserId(userId);
+        for (UserToken userToken : oldToken) {
+            //相同的tokenType才让其下线
+            if (type.equals(userToken.getType())) {
+                changeTokenState(userToken.getToken(), TokenState.offline);
+            }
+        }
+    }
+    detail.setState(TokenState.normal);
+    tokenStorage.put(token, detail);
+
+    getUserToken(userId).add(token);
+
+    publishEvent(new UserTokenCreatedEvent(detail));
+    return detail;
+}
+```
+
+1. 构造SimpleUserToken类实例
+2. 根据type获取AllopatricLoginMode类
+3. 如果为deny，缓存中获取userId对应的UserToken，判断type是否相同，判断是否超时，判断状态是否为正常。如果都满足，则抛出AccessDenyException
+4. 如果为offlineOther，缓存中获取userId对应的UserToken，如果type相同，设置状态为offline
+5. 否则，设置状态为normal，缓存token，发布UserTokenCreatedEvent事件并返回
+
+登录接口调用完成
+
+
 

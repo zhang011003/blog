@@ -1,4 +1,4 @@
-# hs-web登录
+# hs-web登录和退出
 
 ## hs-web登录启动
 
@@ -279,7 +279,7 @@ public void onApplicationEvent(AuthorizationSuccessEvent event) {
 
 第三步中的userTokenGenerators中缓存着的UserTokenGenerator接口的实现的实例。默认有两个实现。先看SessionIdUserTokenGenerator。SessionIdUserTokenGenerator中generate方法其实就是使用sessionId作为token的，只是封装为GeneratedToken对象罢了。
 
-第四步中userTokenManager接口实现为DefaultUserTokenManager，看signIn方法
+第四步中userTokenManager接口实现为DefaultUserTokenManager类，看signIn方法
 
 ```java
 public UserToken signIn(String token, String type, String userId, long maxInactiveInterval) {
@@ -325,5 +325,62 @@ public UserToken signIn(String token, String type, String userId, long maxInacti
 
 登录接口调用完成
 
+## 退出流程
+
+退出流程相对简单一些。也是在hsweb-authorization-basic项目的AuthorizationController类中定义。
+
+直接发布AuthorizationExitEvent事件。同一个包中的类UserOnSignOut监听了该事件。从UserTokenHolder.currentToken()方法中获取到token字符串，并调用userTokenManager.signOutByToken方法
+
+DefaultUserTokenManager类的signOutByToken方法只是将缓存中的token移除，并发布UserTokenRemovedEvent事件
+
+有一个疑问：UserTokenHolder.currentToken()是如何设置进去的？
+
+其实这个在[hs-web权限模块](hs-web-authorization.md)里已经提到了，就是用户令牌拦截器WebUserTokenInterceptor。每次接口调用都会被该拦截器拦截到
+
+```java
+public boolean preHandle(HttpServletRequest request, HttpServletResponse response, Object handler) throws Exception {
+    List<ParsedToken> tokens = userTokenParser.stream()
+            .map(parser -> parser.parseToken(request))
+            .filter(Objects::nonNull)
+            .collect(Collectors.toList());
+
+    if (tokens.isEmpty()) {
+        if (enableBasicAuthorization && handler instanceof HandlerMethod) {
+            HandlerMethod method = ((HandlerMethod) handler);
+            AuthorizeDefinition definition = parser.parse(method.getBeanType(), method.getMethod());
+            if (null != definition) {
+                response.addHeader("WWW-Authenticate", " Basic realm=\"\"");
+            }
+        }
+        return true;
+    }
+    for (ParsedToken parsedToken : tokens) {
+        UserToken userToken = null;
+        String token = parsedToken.getToken();
+        if (userTokenManager.tokenIsLoggedIn(token)) {
+            userToken = userTokenManager.getByToken(token);
+        }
+        if ((userToken == null || userToken.isExpired()) && parsedToken instanceof AuthorizedToken) {
+            //先踢出旧token
+            userTokenManager.signOutByToken(token);
+
+            userToken = userTokenManager
+                    .signIn(parsedToken.getToken(), parsedToken.getType(), ((AuthorizedToken) parsedToken).getUserId(), ((AuthorizedToken) parsedToken).getMaxInactiveInterval());
+        }
+        if (null != userToken) {
+            userTokenManager.touch(token);
+            UserTokenHolder.setCurrent(userToken);
+        }
+    }
+    return true;
+}
+```
+
+1. 根据请求解析出token
+2. 如果token不为空，且支持基本鉴权验证，且为HandlerMethod方法实例，则解析方法的注解，解析出则添加response的相应header（这步没看懂）
+3. 循环解析出的token，如果token已登录，则获取到token，调用getByToken方法时已经检查了token是否过期。
+4. 如果token为空或者token过期，并且token为AuthorizedToken，则先踢出旧token，再用新token登录
+5. 如果token不为空，则调用DefaultUserTokenManager的touch方法，在touch方法中，会从缓存中取出SimpleUserToken，并调用SimpleUserToken的touch方法，其实就是请求次数加1，并且更新最后请求时间。然后再调用syncToken方法。目前该方法为空，注释为如果使用redission，可重写此方法
+6. 调用UserTokenHolder.setCurrent设置token
 
 

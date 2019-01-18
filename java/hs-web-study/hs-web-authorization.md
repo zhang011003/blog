@@ -34,6 +34,7 @@ AopAuthorizingController的构造方法传入了一个MethodInterceptor实例，
 这里其实我感觉使用Spring security做起来更方便一些，不太清楚作者为何舍弃现有的成熟框架而自己重新发明轮子。
 
 继续看AopAuthorizingController类构造方法的lambda表达式。为了便于说明，先把这部分代码贴出来。
+
 ```java
 boolean isControl = false;
 if (null != definition) {

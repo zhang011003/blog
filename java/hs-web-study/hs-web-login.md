@@ -379,7 +379,7 @@ public boolean preHandle(HttpServletRequest request, HttpServletResponse respons
 1. 根据请求解析出token
 2. 如果token不为空，且支持基本鉴权验证，且为HandlerMethod方法实例，则解析方法的注解，解析出则添加response的相应header（这步没看懂）
 3. 循环解析出的token，如果token已登录，则获取到token，调用getByToken方法时已经检查了token是否过期。
-4. 如果token为空或者token过期，并且token为AuthorizedToken，则先踢出旧token，再用新token登录
+4. 如果token为空或者token过期，并且token为AuthorizedToken，则先调用退出的方法来踢出旧token，再用新token登录
 5. 如果token不为空，则调用DefaultUserTokenManager的touch方法，在touch方法中，会从缓存中取出SimpleUserToken，并调用SimpleUserToken的touch方法，其实就是请求次数加1，并且更新最后请求时间。然后再调用syncToken方法。目前该方法为空，注释为如果使用redission，可重写此方法
 6. 调用UserTokenHolder.setCurrent设置token
 

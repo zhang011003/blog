@@ -1,13 +1,13 @@
-#Spring MVC处理方法
+# Spring MVC处理方法
 
 这两天发现对spring mvc处理方法注解还是一知半解，所以今天抽空写一下这方面的文章。其实就是对[Spring MVC Handler Method](https://docs.spring.io/spring/docs/5.1.7.RELEASE/spring-framework-reference/web.html#mvc-ann-methods)一章的大致翻译。
 
 > 注：使用的是Spring 5.1.7版本
 
-##1.3.3 处理方法
+## 1.3.3 处理方法
 @RequestMapping处理方法可以有各种签名，可以在支持的方法参数和返回值中选择
 
-###方法参数
+### 方法参数
 JDK 8的java.util.Optional也支持作为方法参数与注解联合使用，这些注解需要有required属性（例如，@RequestParam, @RequestHeader以及其它），等效于required=false
 
 

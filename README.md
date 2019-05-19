@@ -4,6 +4,10 @@
 先说说 [我为何现在才开始写博客](why-i-start-to-write-blog.md)。
 
 后续更新的blog就在这里列出，以日期分隔
+
+* 2019-05-19
+    - [Spring MVC处理方法](java/spring-mvc-handler-method.md)
+
 * 2019-01-11
     - [hs-web学习系列](java/hs-web-study/README.md)
 * 2019-01-11

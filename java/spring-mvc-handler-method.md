@@ -56,5 +56,23 @@ JDK 8的java.util.Optional也支持作为方法参数与注解联合使用，这
 |@ModelAttribute|添加到模型上的一个属性，模型名称通过RequestToViewNameTranslator隐式决定。 注意 @ModelAttribute是可选的。参见其它任何返回值|
 |ModelAndView对象|要使用的视图和模型属性，以及响应状态（可选择）|
 |void|方法的返回值为void类型（或者null类型）被认为已经完全处理的响应，如果该方法有ServletResponse和OutputStream参数或者@ResponseStatus注解。如果controller已经做了ETag或者lastModified时间戳检查也是正确的（参见Controllers）。如果上述都不是，void返回类型也在REST controller中表示没有响应对象或html controller的默认视图名称选择|
-|DeferredResult<V>||
+|DeferredResult<V>|异步从任一线程中生成前面的任何返回值——例如，作为事件或回掉的结果，参见Asynchronous Requests和DeferredResult|
+|Callable<V>|异步在spring-mvc管理的线程中生成上面的返回值。参见Asynchronous Requests和Callable|
+|ListenableFuture<V>, java.util.concurrent.CompletionStage<V>, java.util.concurrent.CompletableFuture<V>|作为便利的可选择的DeferredResult（例如，当前服务返回它们中的一个时）|
+|ResponseBodyEmitter, SseEmitter|异步生成对象流，使用HttpMessageConverter的实现写到response中，也支持作为ResponseEntity的body。参见 Asynchronous Requests和HTTP Streaming|
+|StreamingResponseBody|异步写到response的OutputStream中，也支持作为ResponseEntity的body。参见 Asynchronous Requests和HTTP Streaming|
+|响应类型— Reactor, RxJava, 或者其它通过ReactiveAdapterRegistry注册的类型|可选择的DeferredResult（例如Flux, Observable），多个值的流都被收集到List中。对于流式场景（例如text/event-stream, application/json+stream），SseEmitter和 ResponseBodyEmitter被替换使用,ServletOutputStream阻塞I/O在spring mvc管理的线程上执行，背压应用于每一次写完成。参见Asynchronous Requests和Reactive Types.|
+|其它返回值|其它不在该表格中列出的返回值，如果是String或者void，被认为是视图名（默认视图通过RequestToViewNameTranslator来决定），假如不是基础类型（由BeanUtils#isSimpleProperty决定）。基础类型的值不被处理|
+
+#### 类型转换
+
+某些注解的controller方法参数代表了基于String类型的请求输入（例如@RequestParam, @RequestHeader, @PathVariable, @MatrixVariable, and @CookieValue)，如果参数定义成其它非String类型的，能够进行类型转换。
+对于这种情况，类型转换基于配置的converter自动应用。默认的，简单类型（int, long, Date以及其它）都支持。你可以通过WebDataBinder定制转换（参见DataBinder）或者通过使用FormattingConversionService注册的Formatters，参见Spring字段格式化.
+
+#### 矩阵变量
+
+RFC 3986讨论了在路径部分的名值对。在Spring MVC中，我们提到矩阵变量是基于Tim Berners-Lee的“old post”，但它们也可以被指定为URI路径参数。
+
+矩阵变量
+
 

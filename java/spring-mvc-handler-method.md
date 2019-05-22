@@ -69,10 +69,10 @@ JDK 8的java.util.Optional也支持作为方法参数与注解联合使用，这
 某些注解的controller方法参数代表了基于String类型的请求输入（例如@RequestParam, @RequestHeader, @PathVariable, @MatrixVariable, and @CookieValue)，如果参数定义成其它非String类型的，能够进行类型转换。
 对于这种情况，类型转换基于配置的converter自动应用。默认的，简单类型（int, long, Date以及其它）都支持。你可以通过WebDataBinder定制转换（参见DataBinder）或者通过使用FormattingConversionService注册的Formatters，参见Spring字段格式化.
 
-#### 矩阵变量
+#### Matrix变量
 
-RFC 3986讨论了在路径部分的名值对。在Spring MVC中，我们提到矩阵变量是基于Tim Berners-Lee的“old post”，但它们也可以被指定为URI路径参数。
+RFC 3986讨论了在路径部分的名值对。在Spring MVC中，我们提到Matrix变量是基于Tim Berners-Lee的“old post”，但它们也可以被指定为URI路径参数。
 
-矩阵变量
+Matrix变量
 
 

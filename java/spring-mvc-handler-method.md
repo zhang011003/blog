@@ -73,6 +73,126 @@ JDK 8的java.util.Optional也支持作为方法参数与注解联合使用，这
 
 RFC 3986讨论了在路径部分的名值对。在Spring MVC中，我们提到Matrix变量是基于Tim Berners-Lee的“old post”，但它们也可以被指定为URI路径参数。
 
-Matrix变量
+Matrix变量能在任意路径部分中出现，每一个变量由分号分隔，多个值由逗号分隔（如：/cars;color=red,green;year=2012）。多个值也可以通过重复的变量名来指定（如：color=red;color=green;color=blue）
 
+如果URL要包含Matrix变量，对于一个contrller方法的请求映射必须使用URI变量去遮住那个变量内容，确保请求成功匹配，而不依赖于Matrix变量的顺序和出现。以下的例子展示了Matrix变量的使用：
+
+```java
+// GET /pets/42;q=11;r=22
+
+@GetMapping("/pets/{petId}")
+public void findPet(@PathVariable String petId, @MatrixVariable int q) {
+    // petId == 42
+    // q == 11
+}
+```
+
+被给定的路径部分可能包含Matrix变量时，你有时需要区分那个路径变量需要填入matrix变量中。如下的例子展示了如何做的。
+
+```java
+// GET /owners/42;q=11/pets/21;q=22
+
+@GetMapping("/owners/{ownerId}/pets/{petId}")
+public void findPet(
+    @MatrixVariable(name="q", pathVar="ownerId") int q1,
+    @MatrixVariable(name="q", pathVar="petId") int q2) {
+    // q1 == 11
+    // q2 == 22
+}
+```
+
+Matrix变量可以定义为可选以及有默认值，如下的例子所展示的
+
+```java
+// GET /pets/42
+
+@GetMapping("/pets/{petId}")
+public void findPet(@MatrixVariable(required=false, defaultValue="1") int q) {
+    // q == 1
+}
+```
+
+如果需要获取到所有的Matrix变量，你可以使用MultiValueMap
+
+```java
+// GET /owners/42;q=11;r=12/pets/21;q=22;s=23
+
+@GetMapping("/owners/{ownerId}/pets/{petId}")
+public void findPet(
+        @MatrixVariable MultiValueMap<String, String> matrixVars,
+        @MatrixVariable(pathVar="petId") MultiValueMap<String, String> petMatrixVars) {
+
+    // matrixVars: ["q" : [11,22], "r" : 12, "s" : 23]
+    // petMatrixVars: ["q" : 22, "s" : 23]
+}
+```
+
+需要注意的是，你需要让matrix变量可用。在MVC java配置中，你需要通过Path Matching设置UrlPathHelper以及removeSemicolonContent=false。在mvc xml配置中，你可以设置
+
+```xml
+<mvc:annotation-driven enable-matrix-variables="true"/>
+```
+
+#### @RequestParam
+
+你可以使用@RequestParam注解绑定Servlet请求参数（也就是查询参数或者表单数据）到contrller的方法参数。
+
+如下例子展示如何使用
+
+```java
+@Controller
+@RequestMapping("/pets")
+public class EditPetForm {
+    // ...
+    @GetMapping
+    public String setupForm(@RequestParam("petId") int petId, Model model) { 
+        Pet pet = this.clinic.loadPet(petId);
+        model.addAttribute("pet", pet);
+        return "petForm";
+    }
+    // ...
+}
+```
+
+默认情况下，使用该注解的方法参数是必须的，但你可以通过设置@RequestParam注解的required标志位为false来指定方法参数是可选，或者使用java.util.Optional包裹方法参数
+
+如果目标方法参数类型不是String，那么类型转换会自动应用。参见类型转换
+
+申明方法参数是数组或List允许同样的参数名有多个参数值。
+
+当@RequestParam注解申明为Map<String, String> or MultiValueMap<String, String>且没有参数名指定时，map会自动填充为参数名和参数值
+
+注意，使用@RequestParam是可选的（如设置它的属性）。默认情况下，任意简单类型参数（由BeanUtils#isSimpleProperty决定）且没有被任意其它参数解析器所解析的，都会被认为加了@RequestParam注解。
+
+#### @RequestHeader
+
+可以使用@RequestHeader注解绑定请求头到controller的方法参数。
+
+考虑如下请求头
+
+```
+Host                    localhost:8080
+Accept                  text/html,application/xhtml+xml,application/xml;q=0.9
+Accept-Language         fr,en-gb;q=0.7,en;q=0.3
+Accept-Encoding         gzip,deflate
+Accept-Charset          ISO-8859-1,utf-8;q=0.7,*;q=0.7
+Keep-Alive              300
+```
+
+如下的例子获取来Accept-Encoding和Keep-Alive头
+
+```java
+@GetMapping("/demo")
+public void handle(
+        @RequestHeader("Accept-Encoding") String encoding, 
+        @RequestHeader("Keep-Alive") long keepAlive) { 
+    //...
+}
+```
+
+如果目标方法参数类型不是String，会自动进行类型转换。参见类型转换
+
+当@RequestHeader注解使用在Map<String, String>, MultiValueMap<String, String>,或者HttpHeaders参数上时，map会填充所有header值。
+
+> 内建支持将逗号分隔的字符串转换为数组或字符串集合或者其它类型转换系统知道的类型。例如：注解为@RequestHeader("Accept")的方法参数类型可以是String，也可以是String[]或者List\<String>
 

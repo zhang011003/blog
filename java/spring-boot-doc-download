@@ -1,2 +1,5 @@
 https://repo.spring.io/webapp/#/artifacts/browse/tree/Builds/release/org/springframework/boot/spring-boot-docs
 或者https://repo.spring.io/webapp/#/artifacts/browse/tree/Builds/libs-release-local/org/springframework/boot/spring-boot-docs
+
+jmx监控启动配置
+-Djava.rmi.server.hostname=192.168.10.23 -Dcom.sun.management.jmxremote -Dcom.sun.management.jmxremote.port=8888 -Dcom.sun.management.jmxremote.ssl=false -Dcom.sun.management.jmxremote.authenticate=false

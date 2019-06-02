@@ -227,13 +227,13 @@ public String processSubmit(@ModelAttribute Pet pet) { }
 ```
 
 Pet实例按照如下步骤解析
-* 如果已经通过Model添加了，则使用model解析
-* 通过使用@SessionAttributes从Http session中解析
+* 如果已经通过Model添加了，则使用[model](#model)解析
+* 通过使用[@SessionAttributes](#sessionattributes)从Http session中解析
 * 通过Converter从URI路径变量中解析（参见下面的例子）
 * 通过调用默认构造器解析
 * 通过调用参数与Servlet请求参数匹配的主构造器解析。参数名称通过@ConstructorProperties的javabean获取或者通过二进制码中运行时保留的参数解析
 
-通常是使用model来填充属性，另外一种可选择的方法是依赖Converter<String, T>和URI路径变量转换器的组合。下面的例子中，模型属性名称account与URI路径变量account匹配，通过使用注册的Converter<String, Account>解析字符串account数字，Account类被自动加载。
+通常是使用[model](#model)来填充属性，另外一种可选择的方法是依赖Converter<String, T>和URI路径变量转换器的组合。下面的例子中，模型属性名称account与URI路径变量account匹配，通过使用注册的Converter<String, Account>解析字符串account数字，Account类被自动加载。
 
 ```java
 @PutMapping("/accounts/{account}")
@@ -486,7 +486,7 @@ public String handle(@Valid @RequestPart("meta-data") MetaData metadata,
  
 ### @RequestBody
 
-你可以使用@RequestBody注解将request体读出并通过HttpMessageConverter序列化为对象。
+你可以使用@RequestBody注解将request体读出并通过[HttpMessageConverter](#httpmessageconverter)序列化为对象。
 
 ```java
 @PostMapping("/accounts")
@@ -495,7 +495,7 @@ public void handle(@RequestBody Account account) {
 }
 ```
 
-可以使用MVC Config的消息转换器来配置或自定义消息转换。
+可以使用MVC Config的[消息转换器](#消息转换器)来配置或自定义消息转换。
 
 可以使用@RequestBody以及javax.validation.Valid或者Spring的@Validated注解，它们两个都可以启用标准bean验证。默认情况下，错误验证引起MethodArgumentNotValidException，转换为400（BAD_REQUEST）响应。你也可以使用Errors或者BindingResult在controller中处理验证错误。
 
@@ -618,7 +618,89 @@ public class UserController extends AbstractController {
 
 ### 1.3.4 模型
 
-你可以使用@ModelAttribute注解
+你可以在如下情况下使用@ModelAttribute注解
 
-* 在@RequestMapping方法的方法参数上，用来创建或访问模型的对象
+* 在@RequestMapping方法的[方法参数](#modelattribute)上，用来创建或访问模型的对象，以及使用WebDataBinder来绑定到请求上。
+* 在@Controller或者@ControllerAdvice类上作为方法级注解，用来在@RequestMapping方法调用前就初始化模型
+* 在@RequestMapping方法上，用来标记方法返回值是模型属性
+
+Controller可以有多个@ModelAttribute方法。在同一个controller中，所有这些方法都是在@RequestMapping方法调用前就被调用。@ModelAttribute方法可以通过@ControllerAdvice在不同controller间共用。参见[Controller Advice](#controller_advice)
+
+@ModelAttribute方法有灵活的方法签名。它们支持和@RequestMapping一样的参数，除了@ModelAttribute以及任何与请求体相关的参数之外。
+
+如下例子展示了@ModelAttribute方法
+
+```java
+@ModelAttribute
+public void populateModel(@RequestParam String number, Model model) {
+    model.addAttribute(accountRepository.findAccount(number));
+    // add more ...
+}
+```
+
+如下例子只添加一个属性
+
+```java
+@ModelAttribute
+public Account addAccount(@RequestParam String number) {
+    return accountRepository.findAccount(number);
+}
+```
+
+> 当没有显示指定名称时，会基于Object类型选择一个默认名称，如同在[Conventions的java文档中](#conventions的java文档中)解释的一样。
+
+@ModelAttribute也可以作为方法级注解在@RequestMapping方法上使用，这种情况下，@RequestMapping方法返回值作为模型属性返回。通常没必要这样做，因为这在html控制器中是默认行为，除非返回值是String，因为String会被解析为视图名称。@ModelAttribute也可以自定义模型属性名称，类似下面的例子
+
+```java
+@GetMapping("/accounts/{id}")
+@ModelAttribute("myAccount")
+public Account handle() {
+    // ...
+    return account;
+}
+```
+
+### 数据绑定
+
+@Controller或@ControllerAdvice可以包含@InitBinder方法，用来初始化WebDataBinder的实例，它们可以
+
+* 绑定请求参数（form或查询数据）到模型对象
+* 将基于String的请求值（请求参数、路径变量、header、cookie以及其它）转换为controller方法参数的目标类型
+* 当渲染html表单时将模型对象格式化为String值
+
+@InitBinder方法能注册特定controller的java.bean.PropertyEditor或者Spring Converter和Formatter组件。另外，你可以使用MVC配置来注册Converter和Formatter类型到FormattingConversionService中。
+
+@InitBinder方法支持和@RequestMapping一样的参数，除了@ModelAttribute之外。通常，它们定义为WebDataBinder参数以及void返回值。下面是一个例子
+
+```java
+@Controller
+public class FormController {
+
+    @InitBinder 
+    public void initBinder(WebDataBinder binder) {
+        SimpleDateFormat dateFormat = new SimpleDateFormat("yyyy-MM-dd");
+        dateFormat.setLenient(false);
+        binder.registerCustomEditor(Date.class, new CustomDateEditor(dateFormat, false));
+    }
+
+    // ...
+}
+```
+
+另外，当你通过FormattingConversionService注册Formatter时，你也可以使用相同的方法注册特定controller的Formatter实现，像下面的例子一样
+
+```java
+@Controller
+public class FormController {
+
+    @InitBinder 
+    protected void initBinder(WebDataBinder binder) {
+        binder.addCustomFormatter(new DateFormatter("yyyy-MM-dd"));
+    }
+
+    // ...
+}
+```
+
+
 

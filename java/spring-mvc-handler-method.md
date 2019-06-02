@@ -1,6 +1,6 @@
 # Spring MVC处理方法
 
-这两天发现对spring mvc处理方法注解还是一知半解，所以今天抽空写一下这方面的文章。其实就是对[Spring MVC Handler Method](https://docs.spring.io/spring/docs/5.1.7.RELEASE/spring-framework-reference/web.html#mvc-controller)一章的大致翻译。
+这两天发现对spring mvc处理方法注解还是一知半解，所以今天抽空写一下这方面的文章。其实就是对[Spring MVC Handler Method](https://docs.spring.io/spring/docs/5.1.7.RELEASE/spring-framework-reference/web.html#mvc-ann-methods)及相关章节的大致翻译。
 
 > 注：使用的是Spring 5.1.7版本
 
@@ -23,10 +23,10 @@ JDK 8的java.util.Optional也支持作为方法参数与注解联合使用，这
 |java.util.TimeZone + java.time.ZoneId|当前的request关联的时区，由LocaleContextResolver决定|
 |java.io.InputStream, java.io.Reader|用来访问原始的request body，其由Servlet API暴露|
 |java.io.OutputStream, java.io.Writer|用来访问原始的response body，其由Servlet API暴露|
-|@PathVariable|用来访问模板变量，参见URI模式|
-|@MatrixVariable|用来访问URI路径部分的键值对，参见Matrix变量|
-|@RequestParam|用来访问Servlet request参数，包括multipart files。请求值被转成申明的方法参数类型，参见@RequestParam和Multipart.|
-|@RequestHeader|用来访问request头。值被转换为申明的方法参数类型。参见@RequestHeader.|
+|@PathVariable|用来访问模板变量，参见[URI模式](#URI模式)|
+|@MatrixVariable|用来访问URI路径部分的键值对，参见[Matrix变量](#Matrix变量)|
+|@RequestParam|用来访问Servlet request参数，包括multipart files。请求值被转成申明的方法参数类型，参见[@RequestParam](#@RequestParam)和[Multipart](#Multipart).|
+|@RequestHeader|用来访问request头。值被转换为申明的方法参数类型。参见[@RequestHeader](#@RequestHeader).|
 |@CookieValue|用来访问Cookie。Cookie值被转换为申明的方法参数类型。参见@CookieValue|
 |@RequestBody|用来访问HTTP request body。Body内容通过HttpMessageConverter的实现类被转换为申明的方法参数类型，参见@RequestBody|
 |HttpEntity<B>|用来访问request headers和body。body通过HttpMessageConverter来转换。参见HttpEntity|

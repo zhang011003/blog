@@ -27,18 +27,18 @@ JDK 8的java.util.Optional也支持作为方法参数与注解联合使用，这
 |@MatrixVariable|用来访问URI路径部分的键值对，参见[Matrix变量](#matrix变量)|
 |@RequestParam|用来访问Servlet request参数，包括multipart files。请求值被转成申明的方法参数类型，参见[@RequestParam](#requestparam)和[Multipart](#multipart).|
 |@RequestHeader|用来访问request头。值被转换为申明的方法参数类型。参见[@RequestHeader](#requestheader).|
-|@CookieValue|用来访问Cookie。Cookie值被转换为申明的方法参数类型。参见@CookieValue|
-|@RequestBody|用来访问HTTP request body。Body内容通过HttpMessageConverter的实现类被转换为申明的方法参数类型，参见@RequestBody|
-|HttpEntity<B>|用来访问request headers和body。body通过HttpMessageConverter来转换。参见HttpEntity|
-|@RequestPart|用来访问multipart/form-data的part，使用HttpMessageConverter来转换part的body。参见Multipart.|
+|@CookieValue|用来访问Cookie。Cookie值被转换为申明的方法参数类型。参见[@CookieValue](#cookievalue)|
+|@RequestBody|用来访问HTTP request body。Body内容通过HttpMessageConverter的实现类被转换为申明的方法参数类型，参见[@RequestBody](#requestbody)|
+|HttpEntity<B>|用来访问request headers和body。body通过HttpMessageConverter来转换。参见[HttpEntity](#httpentity)|
+|@RequestPart|用来访问multipart/form-data的part，使用HttpMessageConverter来转换part的body。参见[Multipart](#multipart).|
 |java.util.Map, org.springframework.ui.Model, org.springframework.ui.ModelMap|用来访问模型。该模型在html控制器中使用，且作为视图渲染的一部分暴露到模板中|
-|RedirectAttributes|指定了在redirect情况下使用的属性（被添加到查询字符串后）以及flash属性，会临时保存到redirect后的request。参见Redirect Attributes和Flash Attributes|
-|@ModelAttribute|用来访问在model中已经存在的属性（不存在则实例化）且已经应用过data binding和validation。参见@ModelAttribute和Model和DataBinder.|
+|RedirectAttributes|指定了在redirect情况下使用的属性（被添加到查询字符串后）以及flash属性，会临时保存到redirect后的request。参见[Redirect Attributes](#redirectattributes)和[Flash Attributes](#flashattributes)|
+|@ModelAttribute|用来访问在model中已经存在的属性（不存在则实例化）且已经应用过data binding和validation。参见[@ModelAttribute](#modelattribute)以及[Model](#model)和[DataBinder](#databinder).|
 |Errors, BindingResult|用来访问命令对象（@ModelAttribute修饰的参数）在validation和data binding中的错误，或者@RequestBody或@RequestPart修饰的参数的validation错误。你必须在需要验证的方法参数后立即申明Errors或者BindingResult|
-|SessionStatus + 类级别的 @SessionAttributes|用来标记form表单处理完成，触发在类级别@SessionAttributes注解定义的session属性清除。参见@SessionAttributes|
-|UriComponentsBuilder|用来准备相对于当前请求host，port，schema，上下文路径以及servlet映射的字面部分的URL。参见URI Links|
-|@SessionAttribute|用来访问任何session属性，与模型属性不同，模型属性存储在session中，使用类级别的@SessionAttributes申明。参见@SessionAttributes|
-|@RequestAttribute|用来访问request属性，参见@RequestAttribute|
+|SessionStatus + 类级别的 @SessionAttributes|用来标记form表单处理完成，触发在类级别@SessionAttributes注解定义的session属性清除。参见[@SessionAttributes](#sessionattributes)|
+|UriComponentsBuilder|用来准备相对于当前请求host，port，schema，上下文路径以及servlet映射的字面部分的URL。参见[URI Links](#urilinks)|
+|@SessionAttribute|用来访问任何session属性，与模型属性不同，模型属性存储在session中，使用类级别的@SessionAttributes申明。参见[@SessionAttributes](#sessionattributes)|
+|@RequestAttribute|用来访问request属性，参见[@RequestAttribute](#requestattribute)|
 |其它参数|如果方法参数没有匹配到上面提到值，并且它是基本类型（由[BeanUtils#isSimpleProperty](https://docs.spring.io/spring-framework/docs/5.1.7.RELEASE/javadoc-api/org/springframework/beans/BeanUtils.html#isSimpleProperty-java.lang.Class-)定义），它会被处理为@RequestParam，否则会被处理为@ModelAttribute|
 
 ### 返回值
@@ -48,26 +48,26 @@ JDK 8的java.util.Optional也支持作为方法参数与注解联合使用，这
 | Controller方法返回值 | 描述 |
 | --- | --- |
 |@ResponseBody|返回值通过HttpMessageConverter来转换，并写入response，参见@ResponseBody.|
-|HttpEntity<B>, ResponseEntity<B>|返回值指定了完整的response（包括http头和体），通过HttpMessageConverter来转换，并写入response，参见@ResponseBody.|
+|HttpEntity<B>, ResponseEntity<B>|返回值指定了完整的response（包括http头和体），通过HttpMessageConverter来转换，并写入response，参见[@ResponseBody](#responsebody).|
 |HttpHeaders|用来返回response的header，没有body|
-|String|view名称，用ViewResolver来解析，和隐式model同时使用，model通过命令对象和@ModelAttribute方法来决定。处理方法也可以通过程序申明model参数来加强model（参见Explicit Registrations）|
-|View|要使用的，用来和隐式模型一起渲染的View实例。隐式模型通过命令对象和@ModelAttribute方法来决定。处理方法也可以通过程序申明model参数来加强model（参见Explicit Registrations|
+|String|view名称，用ViewResolver来解析，和隐式model同时使用，model通过命令对象和@ModelAttribute方法来决定。处理方法也可以通过程序申明model参数来加强model（参见[Explicit Registrations](#explicitregistrations)）|
+|View|要使用的，用来和隐式模型一起渲染的View实例。隐式模型通过命令对象和@ModelAttribute方法来决定。处理方法也可以通过程序申明model参数来加强model（参见[Explicit Registrations](#explicitregistrations)|
 |java.util.Map, org.springframework.ui.Model|添加到隐式模型上的属性，view名称通过RequestToViewNameTranslator隐式决定|
 |@ModelAttribute|添加到模型上的一个属性，模型名称通过RequestToViewNameTranslator隐式决定。 注意 @ModelAttribute是可选的。参见其它任何返回值|
 |ModelAndView对象|要使用的视图和模型属性，以及响应状态（可选择）|
-|void|方法的返回值为void类型（或者null类型）被认为已经完全处理的响应，如果该方法有ServletResponse和OutputStream参数或者@ResponseStatus注解。如果controller已经做了ETag或者lastModified时间戳检查也是正确的（参见Controllers）。如果上述都不是，void返回类型也在REST controller中表示没有响应对象或html controller的默认视图名称选择|
-|DeferredResult<V>|异步从任一线程中生成前面的任何返回值——例如，作为事件或回掉的结果，参见Asynchronous Requests和DeferredResult|
-|Callable<V>|异步在spring-mvc管理的线程中生成上面的返回值。参见Asynchronous Requests和Callable|
+|void|方法的返回值为void类型（或者null类型）被认为已经完全处理的响应，如果该方法有ServletResponse和OutputStream参数或者@ResponseStatus注解。如果controller已经做了ETag或者lastModified时间戳检查也是正确的（参见[Controllers](#controllers)）。如果上述都不是，void返回类型也在REST controller中表示没有响应对象或html controller的默认视图名称选择|
+|DeferredResult<V>|异步从任一线程中生成前面的任何返回值——例如，作为事件或回掉的结果，参见[异步请求](#异步请求)和[DeferredResult](#deferredresult)|
+|Callable<V>|异步在spring-mvc管理的线程中生成上面的返回值。参见[异步请求](#异步请求)和[Callable](#callable)|
 |ListenableFuture<V>, java.util.concurrent.CompletionStage<V>, java.util.concurrent.CompletableFuture<V>|作为便利的可选择的DeferredResult（例如，当前服务返回它们中的一个时）|
-|ResponseBodyEmitter, SseEmitter|异步生成对象流，使用HttpMessageConverter的实现写到response中，也支持作为ResponseEntity的body。参见 Asynchronous Requests和HTTP Streaming|
-|StreamingResponseBody|异步写到response的OutputStream中，也支持作为ResponseEntity的body。参见 Asynchronous Requests和HTTP Streaming|
-|响应类型— Reactor, RxJava, 或者其它通过ReactiveAdapterRegistry注册的类型|可选择的DeferredResult（例如Flux, Observable），多个值的流都被收集到List中。对于流式场景（例如text/event-stream, application/json+stream），SseEmitter和 ResponseBodyEmitter被替换使用,ServletOutputStream阻塞I/O在spring mvc管理的线程上执行，背压应用于每一次写完成。参见Asynchronous Requests和Reactive Types.|
+|ResponseBodyEmitter, SseEmitter|异步生成对象流，使用HttpMessageConverter的实现写到response中，也支持作为ResponseEntity的body。参见 [异步请求](#异步请求)和[HTTP流](#HTTP流)|
+|StreamingResponseBody|异步写到response的OutputStream中，也支持作为ResponseEntity的body。参见[异步请求](#异步请求)和[HTTP流](#HTTP流)|
+|响应类型— Reactor, RxJava, 或者其它通过ReactiveAdapterRegistry注册的类型|可选择的DeferredResult（例如Flux, Observable），多个值的流都被收集到List中。对于流式场景（例如text/event-stream, application/json+stream），SseEmitter和 ResponseBodyEmitter被替换使用,ServletOutputStream阻塞I/O在spring mvc管理的线程上执行，背压应用于每一次写完成。参见[异步请求](#异步请求)和[响应类型](#响应类型).|
 |其它返回值|其它不在该表格中列出的返回值，如果是String或者void，被认为是视图名（默认视图通过RequestToViewNameTranslator来决定），假如不是基础类型（由BeanUtils#isSimpleProperty决定）。基础类型的值不被处理|
 
 ### 类型转换
 
 某些注解的controller方法参数代表了基于String类型的请求输入（例如@RequestParam, @RequestHeader, @PathVariable, @MatrixVariable, and @CookieValue)，如果参数定义成其它非String类型的，能够进行类型转换。
-对于这种情况，类型转换基于配置的converter自动应用。默认的，简单类型（int, long, Date以及其它）都支持。你可以通过WebDataBinder定制转换（参见DataBinder）或者通过使用FormattingConversionService注册的Formatters，参见Spring字段格式化.
+对于这种情况，类型转换基于配置的converter自动应用。默认的，简单类型（int, long, Date以及其它）都支持。你可以通过WebDataBinder定制转换（参见DataBinder）或者通过使用FormattingConversionService注册的Formatters，参见[Spring字段格式化](#spring字段格式化).
 
 ### Matrix变量
 
@@ -75,7 +75,7 @@ RFC 3986讨论了在路径部分的名值对。在Spring MVC中，我们提到Ma
 
 Matrix变量能在任意路径部分中出现，每一个变量由分号分隔，多个值由逗号分隔（如：/cars;color=red,green;year=2012）。多个值也可以通过重复的变量名来指定（如：color=red;color=green;color=blue）
 
-如果URL要包含Matrix变量，对于一个contrller方法的请求映射必须使用URI变量去遮住那个变量内容，确保请求成功匹配，而不依赖于Matrix变量的顺序和出现。以下的例子展示了Matrix变量的使用：
+如果URL要包含Matrix变量，对于一个contrller方法，请求映射必须通过URI变量来包含变量内容，确保请求成功匹配，而不依赖于Matrix变量的顺序和出现。以下的例子展示了Matrix变量的使用：
 
 ```java
 // GET /pets/42;q=11;r=22
@@ -127,7 +127,7 @@ public void findPet(
 }
 ```
 
-需要注意的是，你需要让matrix变量可用。在MVC java配置中，你需要通过Path Matching设置UrlPathHelper以及removeSemicolonContent=false。在mvc xml配置中，你可以设置
+需要注意的是，你需要让matrix变量可用。在MVC java配置中，你需要通过[路径匹配](#路径匹配)设置UrlPathHelper以及removeSemicolonContent=false。在mvc xml配置中，你可以设置
 
 ```xml
 <mvc:annotation-driven enable-matrix-variables="true"/>
@@ -156,7 +156,7 @@ public class EditPetForm {
 
 默认情况下，使用该注解的方法参数是必须的，但你可以通过设置@RequestParam注解的required标志位为false来指定方法参数是可选，或者使用java.util.Optional包裹方法参数
 
-如果目标方法参数类型不是String，那么类型转换会自动应用。参见类型转换
+如果目标方法参数类型不是String，那么类型转换会自动应用。参见[类型转换](#类型转换)
 
 申明方法参数是数组或List允许同样的参数名有多个参数值。
 
@@ -190,7 +190,7 @@ public void handle(
 }
 ```
 
-如果目标方法参数类型不是String，会自动进行类型转换。参见类型转换
+如果目标方法参数类型不是String，会自动进行类型转换。参见[类型转换](#类型转换)
 
 当@RequestHeader注解使用在Map<String, String>, MultiValueMap<String, String>,或者HttpHeaders参数上时，map会填充所有header值。
 
@@ -215,7 +215,7 @@ public void handle(@CookieValue("JSESSIONID") String cookie) {
 }
 ```
 
-如果目标方法参数不是string，会自动使用类型转换。参见类型转换
+如果目标方法参数不是string，会自动使用类型转换。参见[类型转换](#类型转换)
 
 ### @ModelAttribute
 
@@ -242,7 +242,7 @@ public String save(@ModelAttribute("account") Account account) {
 }
 ```
 
-在model属性实例加载完后，会使用数据绑定。WebDataBinder类将Servlet请求参数名称（请求参数和表单字段）和目标对象的字段名称匹配。匹配的字段在类型转换后被填充。数据绑定（以及验证）的更多信息，参见Validation。自定义数据绑定的更多信息，参见DataBinder
+在model属性实例加载完后，会使用数据绑定。WebDataBinder类将Servlet请求参数名称（请求参数和表单字段）和目标对象的字段名称匹配。匹配的字段在类型转换后被填充。数据绑定（以及验证）的更多信息，参见Validation。自定义数据绑定的更多信息，参见[DataBinder](#databinder)
 
 数据绑定可能会出错。默认情况下，BindException异常被抛出。然而如果想在controller中检查这类错误，你可以在@ModelAttribute后添加一个BindingResult参数，如同下面例子展示的一样
 
@@ -369,7 +369,7 @@ public String upload(...) {
 }
 ```
 
-另外一种到重定向目标的传递数据的方法是使用flash属性。不像其它重定向属性，flash属性保存到HTTP Session中（因此不在URL中出现）。参见flash属性。
+另外一种到重定向目标的传递数据的方法是使用flash属性。不像其它重定向属性，flash属性保存到HTTP Session中（因此不在URL中出现）。参见[flash属性](#flash属性)。
 
 ### flash属性
 
@@ -531,11 +531,11 @@ public Account handle() {
 
 @ResponseBody也可以使用在类级别，这种情况下，它被所有controller方法继承。这个就是@RestController的效果，而后者也仅仅是一个标识了@Controller和@ResponseBody的原注解。
 
-可以在响应类型上使用@ResponseBody，参见异步请求和响应类型
+可以在响应类型上使用@ResponseBody，参见[异步请求](#异步请求)和[响应类型](#响应类型)
 
 可以使用MVC Config的消息转换器来配置或自定义消息转换。
 
-可以使用@ResponseBody和JSON序列化视图，参见Jackson JSON
+可以使用@ResponseBody和JSON序列化视图，参见[Jackson JSON](#jackson_json)
 
 ### ResponseEntity
 
@@ -554,11 +554,11 @@ Spring MVC支持单个响应类型值来异步返回ResponseEntity，且/或使�
 
 ### Jackson JSON
 
-Spring支持Jackson JSON库。
+Spring提供对Jackson JSON库的支持。
 
-### JSON视图
+#### JSON视图
 
-Spring MVC提供内建的Jackson序列化视图支持，它允许渲染对象中所有字段的一个子集。为了使用@ResponseBody或者ResponseEntity controller方法，你可以使用Jackson的@JsonView注解来激活序列化的视图类
+Spring MVC提供内建的[Jackson序列化视图](#jackson序列化视图)支持，它允许渲染对象中所有字段的一个子集。为了使用@ResponseBody或者ResponseEntity controller方法，你可以使用Jackson的@JsonView注解来激活序列化的视图类
 
 ```java
 @RestController

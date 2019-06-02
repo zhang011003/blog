@@ -24,9 +24,9 @@ JDK 8的java.util.Optional也支持作为方法参数与注解联合使用，这
 |java.io.InputStream, java.io.Reader|用来访问原始的request body，其由Servlet API暴露|
 |java.io.OutputStream, java.io.Writer|用来访问原始的response body，其由Servlet API暴露|
 |@PathVariable|用来访问模板变量，参见[URI模式](#URI模式)|
-|@MatrixVariable|用来访问URI路径部分的键值对，参见[Matrix变量](#Matrix变量)|
-|@RequestParam|用来访问Servlet request参数，包括multipart files。请求值被转成申明的方法参数类型，参见[@RequestParam](#@RequestParam)和[Multipart](#Multipart).|
-|@RequestHeader|用来访问request头。值被转换为申明的方法参数类型。参见[@RequestHeader](#@RequestHeader).|
+|@MatrixVariable|用来访问URI路径部分的键值对，参见[Matrix变量](#matrix变量)|
+|@RequestParam|用来访问Servlet request参数，包括multipart files。请求值被转成申明的方法参数类型，参见[@RequestParam](#requestparam)和[Multipart](#multipart).|
+|@RequestHeader|用来访问request头。值被转换为申明的方法参数类型。参见[@RequestHeader](#requestheader).|
 |@CookieValue|用来访问Cookie。Cookie值被转换为申明的方法参数类型。参见@CookieValue|
 |@RequestBody|用来访问HTTP request body。Body内容通过HttpMessageConverter的实现类被转换为申明的方法参数类型，参见@RequestBody|
 |HttpEntity<B>|用来访问request headers和body。body通过HttpMessageConverter来转换。参见HttpEntity|

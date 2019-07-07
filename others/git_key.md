@@ -87,19 +87,17 @@ Host xxx                  //这里填git地址别名，写一个便于记忆的�
    ssh-add ~/.ssh/id_github_rsa
    ```
 
-   [^]:参考 [https://help.github.com/en/articles/working-with-ssh-key-passphrases](Working with SSH key passphrases)
-
-   
+   [^]:参考 [Working with SSH key passphrases](https://help.github.com/en/articles/working-with-ssh-key-passphrases)
 
 2. 执行ssh -Tv 时输出的内容看不懂？
 
-   [^]:参考[https://help.github.com/en/articles/error-permission-denied-publickey}(Error: Permission denied (publickey))
+   [^]:参考[Error: Permission denied (publickey)](https://help.github.com/en/articles/error-permission-denied-publickey)
 
 3. 如果别人使用你的电脑，则可以使用你的ssh key访问所有系统怎么办？
 
    需要增加一个额外的安全层，此时需要用到passphase
 
-   [^]:参考 [https://help.github.com/en/articles/working-with-ssh-key-passphrases](Working with SSH key passphrases)
+   [^]:参考[Working with SSH key passphrases](https://help.github.com/en/articles/working-with-ssh-key-passphrases)
 
 
 

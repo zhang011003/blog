@@ -47,9 +47,59 @@ Host xxx                  //这里填git地址别名，写一个便于记忆的�
 
 另外，研究了一个上午的ssh的公钥私钥配置，发现自己对ssh一点都不熟悉，看来需要恶补一下ssh的基础知识了。
 
+------
 
+2019-7-7补充
 
+今天无意中看到github上有详细描述git密钥的配置的文章，看完后发现有些技术性的文章真的不能在网上乱找，真是害死人啊。
 
+1. 配置多个ssh key每次重启电脑后需执行ssh-add命令嫌麻烦？
+
+   打开git bash，在~/.profile中增加如下代码
+
+   ```bash
+   env=~/.ssh/agent.env
+   
+   agent_load_env () { test -f "$env" && . "$env" >| /dev/null ; }
+   
+   agent_start () {
+       (umask 077; ssh-agent >| "$env")
+       . "$env" >| /dev/null ; }
+   
+   agent_load_env
+   
+   # agent_run_state: 0=agent running w/ key; 1=agent w/o key; 2= agent not running
+   agent_run_state=$(ssh-add -l >| /dev/null 2>&1; echo $?)
+   
+   if [ ! "$SSH_AUTH_SOCK" ] || [ $agent_run_state = 2 ]; then
+       agent_start
+       ssh-add
+   elif [ "$SSH_AUTH_SOCK" ] && [ $agent_run_state = 1 ]; then
+       ssh-add
+   fi
+   
+   unset env
+   ```
+
+   其中ssh-add命令默认是增加默认的id_rsa文件，需要修改为自己生成的rsa文件名称，如
+
+   ```bash
+   ssh-add ~/.ssh/id_github_rsa
+   ```
+
+   [^]: 参考 https://help.github.com/en/articles/working-with-ssh-key-passphrases	"Working with SSH key passphrases"
+
+   
+
+2. 执行ssh -Tv 时输出的内容看不懂？
+
+   [^]: 参考https://help.github.com/en/articles/error-permission-denied-publickey
+
+3. 如果别人使用你的电脑，则可以使用你的ssh key访问所有系统怎么办？
+
+   需要增加一个额外的安全层，此时需要用到passphase
+
+   [^]: 参考 https://help.github.com/en/articles/working-with-ssh-key-passphrases	"Working with SSH key passphrases"
 
 
 

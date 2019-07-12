@@ -113,5 +113,128 @@ token端点默认由Spring OAuth通过@Configuration配置，通过使用HTTP Ba
 
 ### 定制UI
 
+大部分鉴权服务器端点主要是被机器使用，但也有几个资源需要用到UI，它们是对/oauth/confirm_access的GET请求以及/oauth/error的HTML响应。在框架中，它们通过whitelabel实现的方式被提供，因此鉴权服务器的大部分真实实例需要提供自己的实现以便他们能控制样式和内容。你所需要做的是对那些端点通过@RequestMappings提供一个Spring MVC控制器，框架默认实现的优先级在dispatcher中就会降低。在/oauth/confirm_access端点中，你可以使用`AuthorizationRequest` 绑定到session上来携带所有需要查找用户同意的信息（默认实现是`WhitelabelApprovalEndpoint` ，可以参考）。你可以从request中获取所有数据，渲染成你想要的，然后所有的用户需要做的是POST请求到/oauth/authorize，带上同意或拒绝授权的信息。请求参数被直接传递到`AuthorizationEndpoint` 中的`UserApprovalHandler` ，因此你可以解析数据。默认的`UserApprovalHandler` 依赖于是否你在`AuthorizationServerEndpointsConfigurer` 中提供了ApprovalStore（此时是ApprovalStoreUserApprovalHandler）还是没有提供（此时是TokenStoreUserApprovalHandler）。标准的同意处理器接受如下：
 
+- TokenStoreUserApprovalHandler：简单的是否决定权，比较`user_oauth_approval` 是否为true或false
+- ApprovalStoreUserApprovalHandler：scope.\*参数集合，\*与请求的scope相同。参数值可以是true或approved（如果用户同意授权），否则用户被认为拒绝了那个scope。至少一个scope被同意授权就成功
+
+> 注意：不要忘记在渲染给用户的form中包含CSRF保护。Spring Security默认会使用请求参数_csrf（在请求属性中包含该值）。更多信息可以参考Spring Security用户手册，或者参见whitelabel 实现
+
+### 强制SSL
+
+普通HTTP对测试来说很好，但是在生产环境中鉴权服务器应当使用SSL。可以让应用运行在安全的容器中或者在代理后，如果你正确设置了代理和容器的话，应该会运行得很好（和OAuth 2没有什么关系）。你也可以用Spring Security `requiresChannel()` 保护端点。对于/authorize端点来说需要你的应用安全是你自己的事情。对于/token端点来说，在`AuthorizationServerEndpointsConfigurer` 中有一个标志，你可以通过sslOnly()方法来设置。在这两种情况下，安全通道的设置是可选的，但是如果Spring Security在非安全的通道中探测到请求时，它会重定向到它认为是安全的通道。
+
+### 定制错误处理
+
+鉴权服务器的错误处理使用标准的Spring MVC特性，即在端点上申明 `@ExceptionHandler`的方法。用户也可以为端点提供`WebResponseExceptionTranslator` ，这是一个修改响应内容而不是它们渲染方式的好方法。异常的渲染在token端点的情况下委派给`HttpMesssageConverters` （可以添加到MVC配置中），在鉴权端点的情况下委派给OAuth错误页面（/oauth/error）。whitelabel 错误端点用于HTML响应，但用户可以提供一个定制的实现（例如增加`@Controller`和`@RequestMapping("/oauth/error")`）
+
+### 映射用户角色到Scope
+
+有时候限制token的scope是有用的，限制方法可以是通过委派给客户的scope，也可以根据用户自己的权限限制。如果在`AuthorizationEndpoint` 中使用`DefaultOAuth2RequestFactory`，你可以设置`checkUserScopes=true`来限制那些允许的scope给匹配到角色的用户。也可以在`TokenEndpoint` 中注入`OAuth2RequestFactory` （例如使用password授权），这只有在有`TokenEndpointAuthenticationFilter` 时才有效，你仅仅需要在HTTP `BasicAuthenticationFilter`后增加它即可。当然，你也可以实现你自己的规则来将scope和角色对应起来，使用你自己的`OAuth2RequestFactory`。`AuthorizationServerEndpointsConfigurer` 允许你注入定制的`OAuth2RequestFactory` ，这样如果使用`@EnableAuthorizationServer`你就可以使用这个属性设置一个factory。
+
+### 资源服务器配置
+
+资源服务器（可以和鉴权服务器相同，也可以是一个单独的应用）服务的是由OAuth2 token保护的资源。Spring OAuth是通过提供Spring Security鉴权过滤器来实现的。可以通过在配置了`@Configuration` 的类上设置`@EnableResourceServer` 来打开，然后使用`ResourceServerConfigurer`来配置（必须配置）。如下的属性可以配置：
+
+- tokenServices：定义token服务的bean（`ResourceServerTokenServices`实例）
+- resourceId：资源id（可选，但建议配置。如果存在，则鉴权服务器会验证）
+- 其它资源服务器的扩展点（如tokenExtractor用于从请求中抽取token）
+- 匹配受保护资源的请求（默认是所有请求）
+- 受保护资源的访问规则（默认是"authenticated"）
+- 其它为受保护资源的定制内容，且被Spring Security中`HttpSecurity` 配置所允许
+
+`@EnableResourceServer` 注解自动在Spring Security过滤器链中增加了`OAuth2AuthenticationProcessingFilter` 过滤器
+
+在XML中，`<resource-server/>` 元素有id属性，这个是servlet 的`Filter` 对应的bean的id，可以手动将它增加到Spring Security过滤器链中。
+
+`ResourceServerTokenServices` 是鉴权服务器的另一半。如果资源服务器和鉴权服务器在同一个应用中，而且使用了`DefaultTokenServices` ，那么不需要过多考虑因为它已经实现了必要的接口。如果资源服务器是独立应用，则需要提供`ResourceServerTokenServices` 来正确解码token。在鉴权服务器上，你可以使用`DefaultTokenServices` ，通常通过`TokenStore` 来设置（后端存储或本地编码）。也可以使用`RemoteTokenServices` ，它是Spring OAuth的特性（并不是规范的一部分），允许资源服务器通过鉴权服务器上的HTTP响应解码token（`/oauth/check_token`）。如果资源服务器上流量不是很大，或者可以缓存结果，那么`RemoteTokenServices` 是非常便利的（每一个请求在鉴权服务器上都会被验证）。要想使用`/oauth/check_token` 端点，需要通过在`AuthorizationServerSecurityConfigurer`中修改访问规则来暴露它（默认是denyAll()）。例如:
+
+```java
+@Override
+		public void configure(AuthorizationServerSecurityConfigurer oauthServer) throws Exception {
+			oauthServer.tokenKeyAccess("isAnonymous() || hasAuthority('ROLE_TRUSTED_CLIENT')").checkTokenAccess(
+					"hasAuthority('ROLE_TRUSTED_CLIENT')");
+		}
+```
+
+在这个例子中，我们配置了`/oauth/check_token`和`/oauth/token_key` 端点（因此可信资源能够获取用于JWT验证的public key）。通过HTTP Basic鉴权方式使用用户凭据保护这两个端点。
+
+### 配置OAuth感知的表达式处理器
+
+也许想使用Spring Security的 [基于表达式的访问控制](https://docs.spring.io/spring-security/site/docs/3.2.5.RELEASE/reference/htmlsingle/#el-access)。表达式处理器默认在`@EnableResourceServer`启动的时候被注册。表达式包括*#oauth2.clientHasRole*, *#oauth2.clientHasAnyRole*,以及*#oath2.denyClient*，它们可以被用于提供基于OAuth客户端角色的方法控制（全部表达式参见`OAuth2SecurityExpressionMethods`）。在XML中，你可以在`<http/>`配置中使用`expression-handler` 元素注册一个OAuth感知的表达式处理器。
+
+## OAuth 2.0客户端
+
+OAuth 2.0客户端机制用于访问OAuth 2.0保护的资源。配置保护建立用户可能会访问的相关保护资源。客户端也需要提供存储鉴权码和用户访问token的机制。
+
+### 受保护资源配置
+
+受保护的资源（或者说远端资源）通过[`OAuth2ProtectedResourceDetails`](https://projects.spring.io/spring-security-oauth2/src/main/java/org/springframework/security/oauth2/client/resource/OAuth2ProtectedResourceDetails.java)类型的bean定义来定义。它有如下属性：
+
+- id： 资源id。id只被客户端用于查找资源。它不会在OAuth协议中被使用。也可以用于bean的id
+- clientId：OAuth的客户端id。它用于OAuth提供者来识别客户端
+- clientSecret：资源相关的密码。默认的密码为空
+- accessTokenUri：OAuth提供者用于提供访问token的URI
+- scope：指定了访问资源的scope，逗号分隔。默认的scope未指定
+- clientAuthenticationScheme：客户端使用的用于鉴权访问token端点的scheme。建议的值：http_basic和form。默认是http_basic。参见OAuth 2规范的2.1节
+
+不同的授权类型有`OAuth2ProtectedResourceDetails` 的不同实现（如对于client_credentials类型的实现为`ClientCredentialsResource` ）。对于需要用户鉴权的授权类型有其它的属性：
+
+- userAuthorizationUri：用户如果需要授权访问资源时，被重定向的URI。注意，它不是必须的，依赖于支持哪种OAuth 2 profile
+
+XML中`<resource/>` 元素用于创建`OAuth2ProtectedResourceDetails`类型的bean。它有上面提到的所有属性
+
+### 客户端配置
+
+对于OAuth 2.0客户端，使用`@EnableOAuth2Client`可以简化配置。它做了两件事情：
+
+- 创建了过滤器bean（id为`oauth2ClientContextFilter`）来存储当前请求和上下文。在请求过程中需要鉴权的情况下，它管理了重定向到OAuth鉴权URI的方向
+- 在请求范围内创建了`AccessTokenRequest` 的bean。它用于通过鉴权码（或简化模式）授权的客户端来保存不同用户的状态。
+
+过滤器需要被织入应用（例如对于`DelegatingFilterProxy`来说，通过Servlet初始化器或`web.xml` 配置 ）
+
+`AccessTokenRequest` 能够在`OAuth2RestTemplate` 中像如下这样使用
+
+```java
+@Autowired
+private OAuth2ClientContext oauth2Context;
+
+@Bean
+public OAuth2RestTemplate sparklrRestTemplate() {
+	return new OAuth2RestTemplate(sparklr(), oauth2Context);
+}
+```
+
+OAuth2ClientContext放置在session范围内来独立保存不同用户的状态。如果没有则需要在服务器上管理相同的数据结构，将传入的请求映射给用户，将每一个用户和`OAuth2ClientContext`的实例关联起来。
+
+在XML中，包括`<client/>` 元素和`id` 属性，它是servlet过滤器的bean的id，就像在`@Configuration` 中一样，必须映射到`DelegatingFilterProxy` （有相同的名称）
+
+### 访问保护资源
+
+一旦对所有的资源都进行了配置，你就可以访问那些资源了。推荐的访问方法是通过 [Spring 3中的`RestTemplate`](https://docs.spring.io/spring/docs/current/javadoc-api/org/springframework/web/client/RestTemplate.html)。如果要通过用户token（鉴权码方法）使用它，你可以通过`@EnableOAuth2Client` 配置来使用（XML中是`<oauth:rest-template/>`），它创建了请求和session范围的上下文对象以便不同用户的请求不会冲突
+
+作为一个通用准则，web应用不应当使用password授权，因此避免使用`ResourceOwnerPasswordResourceDetails` ，可以用`AuthorizationCodeResourceDetails`来替代。如果你需要通过java客户端来使用密码授权，可以通过配置`OAuth2RestTemplate` 添加凭据到`AccessTokenRequest`（是一个`Map`且生存期短暂）而不是`ResourceOwnerPasswordResourceDetails` （所有访问的token共享）
+
+### 在客户端持久化token
+
+客户端不需要持久化token，但如果客户端app每次重启后不需要获取新的token，那么对用户来说会很友好。 [`ClientTokenServices`](https://projects.spring.io/spring-security-oauth2/src/main/java/org/springframework/security/oauth2/client/token/ClientTokenServices.java)接口定义了需要存储特定用户的OAuth 2.0 token的操作。默认提供了JDBC的实现，但你可以实现自己的存储访问token的服务以及数据库层关联的鉴权实例。如果想要使用这个特性，你需要为`OAuth2RestTemplate`配置`TokenProvider` 。例如：
+
+```java
+@Bean
+@Scope(value = "session", proxyMode = ScopedProxyMode.INTERFACES)
+public OAuth2RestOperations restTemplate() {
+	OAuth2RestTemplate template = new OAuth2RestTemplate(resource(), new DefaultOAuth2ClientContext(accessTokenRequest));
+	AccessTokenProviderChain provider = new AccessTokenProviderChain(Arrays.asList(new AuthorizationCodeAccessTokenProvider()));
+	provider.setClientTokenServices(clientTokenServices());
+	return template;
+}
+```
+
+### 为外部OAuth2提供者定制化客户端
+
+一些外部的OAuth2 提供者（例如Facebook）没有正确实现规范，或者它们实现的是比Spring Security OAuth老的版本。为了在你的客户端中使用这些提供者，你需要适配客户端框架的不同部分。
+
+例如为了使用Facebook，在`tonr2` 应用中有Facebook特性（你需要增加你自己的、有效的客户端id和密码 ，它们在Facebook网站上很容易生成）。
+
+Facebook token响应也包含了token过期时间不兼容的JSON（它们使用`expires` 而不是`expires_in`），所以如果你在你的应用中需要使用过期时间，你需要使用定制化的`OAuth2SerializationService`来解码。
 

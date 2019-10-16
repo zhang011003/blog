@@ -5,6 +5,8 @@
 
 后续更新的blog就在这里列出，以日期分隔
 
+* 2019-10-16
+    *  [Spring Boot和Spring Cloud FAQ](java\spring-cloud-misc.md) 
 * 2019-7-7
     * [Spring Oauth](java/spring-oauth.md)
 * 2019-05-19

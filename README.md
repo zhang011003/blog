@@ -5,6 +5,8 @@
 
 后续更新的blog就在这里列出，以日期分隔
 
+* 2019-10-23
+    - [Spring Cloud学习笔记](java\spring-cloud\spring-cloud-study.md) 
 * 2019-10-16
     *  [Spring Boot和Spring Cloud FAQ](java/spring-cloud-misc.md) 
 * 2019-7-7

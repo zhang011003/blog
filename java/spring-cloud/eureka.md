@@ -8,11 +8,11 @@
 
    新建一个工程
 
-   ![new project maven](../../screenshot/spring-cloud/new project maven.png)
+   ![new project maven](../../screenshot/spring-cloud/new_project_maven.png)
 
    点击下一步，输入groupid为com.study.cloud，artifactid为spring-cloud-study
 
-   ![new project maven](../../screenshot/spring-cloud/new project2.png)
+   ![new project maven](../../screenshot/spring-cloud/new_project2.png)
 
    下一步修改project的名称为spring-cloud-study，点击完成
 
@@ -20,11 +20,11 @@
 
    在新建的maven工程上点击右键
 
-   ![new module](../../screenshot/spring-cloud/new module.png)
+   ![new module](../../screenshot/spring-cloud/new_module.png)
    
    输入artifactid为spring-cloud-eureka-server
    
-   ![new module](../../screenshot/spring-cloud/new module2.png)
+   ![new module](../../screenshot/spring-cloud/new_module2.png)
    
    修改module名称为spring-cloud-eureka-server，点击完成
    
@@ -132,3 +132,4 @@
    
 
    
+

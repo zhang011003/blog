@@ -1,6 +1,6 @@
 # Eureka
 
-##  创建服务注册中心
+##  创建服务注册中心（Eureka服务端）
 
 先介绍eureka。它是用于服务的注册和发现的，还有另外一个服务注册和发现的组件叫做consul，后续再介绍。
 
@@ -60,8 +60,6 @@
    </dependencyManagement>
    ```
 
-   
-
 5. 在spring-cloud-eureka-server工程的pom中，增加相应依赖
 
    ```xml
@@ -75,7 +73,7 @@
 
    
 
-6. 在spring-cloud-eureka-server工程中新建java类
+6. 在spring-cloud-eureka-server工程中新建java类，EnableEurekaServer注解说明是eureka服务端
 
    ```java
    @SpringBootApplication
@@ -98,8 +96,6 @@
        name: eureka-server
    ```
 
-   
-
 8. 启动工程，在浏览器中访问 http://localhost:8761 ，可以看到相应页面
 
    ![eureka](../../screenshot/spring-cloud/eureka.png)
@@ -121,13 +117,44 @@
 
     通过eureka.client.register-with-eureka：false和fetch-registry：false来表明自己是一个eureka服务端
 
-   现在重启，就会发现页面中已经不存在应用了
+   现在重启，就会发现页面中那个红色框的内容已经不在了
+
+## 创建服务提供者（Eureka客户端）
+
+1. 创建子工程spring-cloud-eureka-client。类似于上面的步骤，不再重复
+   
+2. 新建java类EurekaClientApplication，EnableEurekaClient注解说明是eureka客户端
 
    
-
-   ## 创建服务提供者
-
-   1. 创建子工程spring-cloud-eureka-client
+```java
+@SpringBootApplication
+@EnableEurekaClient
+public class EurekaClientApplication {
+    public static void main(String[] args) {
+        SpringApplication.run(EurekaClientApplication.class, args);
+    }
+}
+```
+ 
+3. 新建application.yml，配置内容如下
+   
+```yaml
+server:
+  port: 8762
+    
+spring:
+  application:
+    name: eureka-client
+    
+eureka:
+  client:
+    service-url:
+      defaultZone: http://localhost:8761/eureka
+  instance:
+    prefer-ip-address: true
+```
+    
+4. 
 
    
 

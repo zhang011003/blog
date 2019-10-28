@@ -140,7 +140,7 @@ public class EurekaClientApplication {
    
 ```yaml
 server:
-  port: 8762
+  port: 8771
     
 spring:
   application:
@@ -153,10 +153,20 @@ eureka:
   instance:
     prefer-ip-address: true
 ```
+其中defaultZone表明注册中心的地址，也就是将自己注册到哪个Eureka服务端
     
-4. 
+4. 启动EurekaClientApplication类，发现客户端服务一启动就立刻退出。网上查了一下，说是要加SpringBoot web的依赖，在spring-cloud-study工程的pom文件中，增加如下依赖
 
-   
+```xml
+<dependency>
+    <groupId>org.springframework.boot</groupId>
+    <artifactId>spring-boot-starter-web</artifactId>
+</dependency>
+```
+
+5. 再次启动EurekaClientApplication类，顺利完成启动。在浏览器中访问 http://localhost:8761，可以看到有一个eureka-client应用已经注册到服务端了。
+
+eureka最基本的注册中心和客户端大概总结完了。下一次，记录一下[eureka其它特性](eureka2.md)。
 
    
 

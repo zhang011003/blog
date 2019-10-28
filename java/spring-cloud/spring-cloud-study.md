@@ -4,4 +4,7 @@
   
   - [前言](introduction.md) 
 - 2019-10-24
-  -  [eureka](eureka.md) 
+  -  [eureka](eureka.md)  
+- 2019-10-27
+  - [eureka其它特性](eureka2.md)   
+

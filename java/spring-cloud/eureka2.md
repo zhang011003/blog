@@ -97,6 +97,34 @@ eureka:
 
 ## Eureka可配置的内容
 
-前面看到的只是Eureka配置的一部分内容，其它可以配置的内容可以参考 `EurekaInstanceConfigBean` 和 `EurekaClientConfigBean`
+前面看到的只是Eureka配置的一部分内容，其它可以配置的内容可以参考 `EurekaInstanceConfigBean` 和 `EurekaClientConfigBean`，其中`EurekaInstanceConfigBean` 对应的是` eureka.instance.* `配置（instance表示将自己注册为一个实例），而`EurekaClientConfigBean`对应的是`eureka.client.*`配置（client表示通过查询注册中心来获取其它服务信息）
+
+## 状态页和健康检查
+
+状态页对应的地址为`/info`，健康检查对应的地址为`/health`。如果使用上下文路径，则需要修改这两个默认的地址
+
+```yaml
+#指定上下文路径
+server:
+  servlet:
+    path: eureka
+    
+eureka:
+  instance:
+    status-page-url-path: ${server.servlet.path}/info
+    health-check-url-path: ${server.servlet.path}/health
+```
+
+## 注册安全应用
+
+如果应用通过https访问，需要设置如下标识
+
+```yaml
+
+```
+
+
+
+ 
 
 

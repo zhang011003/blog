@@ -91,7 +91,7 @@ eureka:
     prefer-ip-address: true
 ```
 
-## 保护Eureka
+## 保护Eureka（后续需要通过代码演示）
 
 可以通过增加`spring-boot-starter-security`依赖来保护Eureka服务器
 
@@ -115,14 +115,20 @@ eureka:
     health-check-url-path: ${server.servlet.path}/health
 ```
 
-## 注册安全应用
+## 注册安全应用（后续需要查看eureka源码来确认具体的含义）
 
-如果应用通过https访问，需要设置如下标识
+如果应用通过https访问，需要设置如下标识，说明需要用到安全端口（默认为443）和禁用非安全端口（默认为80）来接收流量（receive traffic）
 
 ```yaml
-
+eureka:
+  instance:
+    secure-port-enabled: true
+    non-secure-port-enabled: false
 ```
 
+## 健康检查
+
+默认情况下，Eureka使用客户端心跳来判断是否客户端还活着。除非特别指定，
 
 
  

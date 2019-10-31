@@ -91,9 +91,9 @@ eureka:
     prefer-ip-address: true
 ```
 
-## 保护Eureka（后续需要通过代码演示）
+## 保护Eureka
 
-可以通过增加`spring-boot-starter-security`依赖来保护Eureka服务器
+可以通过增加`spring-boot-starter-security`依赖来保护Eureka服务器。**（后续需要通过代码演示）**
 
 ## Eureka可配置的内容
 
@@ -115,9 +115,9 @@ eureka:
     health-check-url-path: ${server.servlet.path}/health
 ```
 
-## 注册安全应用（后续需要查看eureka源码来确认具体的含义）
+## 注册安全应用
 
-如果应用通过https访问，需要设置如下标识，说明需要用到安全端口（默认为443）和禁用非安全端口（默认为80）来接收流量（receive traffic）
+如果应用通过https访问，需要设置如下标识，说明需要用到安全端口（默认为443）和禁用非安全端口（默认为80）来接收流量（receive traffic）（**后续需要查看eureka源码来确认具体的含义**）
 
 ```yaml
 eureka:
@@ -128,9 +128,36 @@ eureka:
 
 ## 健康检查
 
-默认情况下，Eureka使用客户端心跳来判断是否客户端还活着。除非特别指定，
+默认情况下，Eureka使用客户端心跳来判断是否客户端还活着。当成功注册后，Eureka服务端会声明客户端为`UP`状态。可以通过让Eureka启用健康检查来改变这种方式。健康检查可以将应用的状态传递给Eureka服务器。其它应用不会发送非`UP`状态给该应用。可以通过如下方式打开健康检查
 
+```yaml
+eureka:
+  client:
+    healthcheck:
+      enabled: true
+```
 
- 
+> 该配置应该配置到application.yml中，配置到bootstrap.yml文件中会导致不可预期的副作用，例如注册到Eureka服务器的状态为 `UNKNOWN`  
+>
 
+## 元数据
 
+每一个Eureka客户端有一些标准的元数据，比如主机名，IP地址，端口号，状态页和健康检查。这些信息会发布到服务端，其它客户端通过这些信息直接与服务交互。也可以通过 eureka.instance.metadata-map 添加其它的元数据，这些元数据也可以被其它客户端访问到。添加的元数据不会对客户端造成影响。某些元数据已经被SpringCloud赋予意义，比如 `vcap.application.instance_id`,在Cloud Foundry上默认被设置为 `eureka.instance.instanceId `的值
+
+## 设置Eureka Instance ID
+
+SpringCloud推荐的设置InstanceID值的格式如下
+
+```yaml
+eureka:
+  instance:
+    instanceId: ${spring.application.name}:${vcap.application.instance_id:${spring.application.instance_id:${random.value}}}
+```
+
+含义如下：
+
+默认instanceId为`${spring.application.name}:${vcap.application.instance_id}`，如果`${vcap.application.instance_id}`没有设置（不是部署在Cloud Foundry上），则instanceId为`${spring.application.name}:${spring.application.instance_id}`，如果`${spring.application.instance_id}`没有设置，则instanceId为`${spring.application.name}:${random.value}`
+
+## EurekaClient排除Jersey
+
+默认情况下，EurekaClient使用Jersey来进行HTTP通信。如果不希望

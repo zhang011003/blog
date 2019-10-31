@@ -160,4 +160,82 @@ eureka:
 
 ## EurekaClient排除Jersey
 
-默认情况下，EurekaClient使用Jersey来进行HTTP通信。如果不希望
+默认情况下，EurekaClient使用Jersey来进行HTTP通信。如果不希望依赖Jersey，可以将它移除。SpringCloud自动配置了基于RestTemplate的传输客户端。
+
+```xml
+<dependency>
+    <groupId>org.springframework.cloud</groupId>
+    <artifactId>spring-cloud-starter-netflix-eureka-client</artifactId>
+    <exclusions>
+        <exclusion>
+            <groupId>com.sun.jersey</groupId>
+            <artifactId>jersey-client</artifactId>
+        </exclusion>
+        <exclusion>
+            <groupId>com.sun.jersey</groupId>
+            <artifactId>jersey-core</artifactId>
+        </exclusion>
+        <exclusion>
+            <groupId>com.sun.jersey.contribs</groupId>
+            <artifactId>jersey-apache-client4</artifactId>
+        </exclusion>
+    </exclusions>
+</dependency>
+```
+
+## EurekaClient的替代方案
+
+默认情况下，不应该使用`EurekaClient`类。SpringCloud使用Feign和RestTemplate，通过Eureka服务标识（VIPs）而不是物理URL地址来调用。如果需要配置Ribbon使用几个固定的物理服务器，可以设置`<client>.ribbon.listOfServers`属性，值为逗号分隔的物理地址（或主机名），其中`<client>`是客户端ID。
+
+也可以使用`org.springframework.cloud.client.discovery.DiscoveryClient`，它提供了简单的API来发现客户端（不是特定与Netflix）
+
+```java
+@Autowired
+private DiscoveryClient discoveryClient;
+
+public String serviceUrl() {
+    List<ServiceInstance> list = discoveryClient.getInstances("STORES");
+    if (list != null && list.size() > 0 ) {
+        return list.get(0).getUri();
+    }
+    return null;
+}
+```
+
+## 注册服务为何如此慢
+
+作为一个实例，也需要周期性地和服务器保持心跳（通过客户端的`serviceUrl`），默认间隔为30秒。直到实例、服务器和客户端在自己本地缓存中都有相同的元数据时，服务器才可用（因此最多需要3次心跳）。可以通过`eureka.instance.leaseRenewalIntervalInSeconds`属性修改心跳周期。当设置的值小于30时，就会加快客户端与其它服务的连接。在生产环境中，最好使用默认值，因为服务器内部会猜测该值（租约续延期lease renewal period）。
+
+## Zone
+
+如果Eureka客户端部署在多个区域（Zone），你需要设置客户端优先使用相同区域的服务，而不是不同区域的服务。
+
+1. 需要保证Eureka服务端部署在不同的区域，它们之间是对等的。
+2. 需要告诉Eureka服务在那个区域。可以通过`metadataMap`属性来做到。例如，如果service 1部署到zone 1和zone 2，需要设置如下Eureka属性
+
+zone 1的service 1
+
+```yaml
+eureka:
+  client:
+    prefer-same-zone-eureka: true
+  instance:
+    metadata-map:
+      zone: zone1
+```
+
+zone 2的service 1
+
+```yaml
+eureka:
+  client:
+    prefer-same-zone-eureka: true
+  instance:
+    metadata-map:
+      zone: zone2
+```
+
+## 刷新Eureka客户端
+
+默认情况下，`EurekaClient` bean是可刷新端。意味着能够修改并刷新Eureka客户端属性。当刷新操作发生时，客户端在Eureka服务器是未注册的，服务的所有实例将会有很短的一段时间不可用。消除这种情况的一个办法就是不刷新Eureka客户端。可以通过`eureka.client.refresh.enable=false`来设置。
+

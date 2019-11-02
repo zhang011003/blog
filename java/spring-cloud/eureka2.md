@@ -81,7 +81,7 @@ eureka:
 ```
 和第一点配置的区别是将defaultZone提出来，这样如果配置三个Eureka服务时，只修改一个地方的defaultZone就可以了
 
-## 使用ip注册到Eureka上而不是hostname
+## 优先使用ip而不是hostname注册到Eureka上
 
 默认情况下，是使用hostname注册到Eureka服务器的。如果hostname无法被java获取时，ip地址就会发送给Eureka服务器。也可以配置优先使用ip地址。示例如下
 
@@ -211,7 +211,7 @@ public String serviceUrl() {
 如果Eureka客户端部署在多个区域（Zone），你需要设置客户端优先使用相同区域的服务，而不是不同区域的服务。
 
 1. 需要保证Eureka服务端部署在不同的区域，它们之间是对等的。
-2. 需要告诉Eureka服务在那个区域。可以通过`metadataMap`属性来做到。例如，如果service 1部署到zone 1和zone 2，需要设置如下Eureka属性
+2. 需要告诉Eureka服务在哪个区域。可以通过`metadataMap`属性来做到。例如，如果service 1部署到zone 1和zone 2，需要设置如下Eureka属性
 
 zone 1的service 1
 
@@ -237,5 +237,18 @@ eureka:
 
 ## 刷新Eureka客户端
 
-默认情况下，`EurekaClient` bean是可刷新端。意味着能够修改并刷新Eureka客户端属性。当刷新操作发生时，客户端在Eureka服务器是未注册的，服务的所有实例将会有很短的一段时间不可用。消除这种情况的一个办法就是不刷新Eureka客户端。可以通过`eureka.client.refresh.enable=false`来设置。
+默认情况下，`EurekaClient` bean是可刷新端。意味着能够修改并刷新Eureka客户端属性。当刷新操作发生时，客户端会从Eureka服务器注销，服务的所有实例将会有很短的一段时间不可用。消除这种情况的一个办法就是不刷新Eureka客户端。可以通过`eureka.client.refresh.enable=false`来设置。
+
+## 加载freemarker模板
+
+默认情况下eureka服务端是使用freemarker模板引擎的。如果你的工程依赖于其它模板（比如thymeleaf），freemarker模板就不会被加载。这种情况下需要在application.yml中手工配置模板加载
+
+```yaml
+spring:
+  freemarker:
+    template-loader-path: classpath:/templates/
+    prefer-file-system-access: false
+```
+
+下面记录一下[Eureka监控页面](eureka-monitor.md)
 

@@ -32,5 +32,6 @@ renewal-percent-threshold表示当续约数降到指定的百分比下时，如�
 
 renewal-threshold-update-interval-ms表示renewal-percent-threshold更新的时间间隔。单位为ms，默认为15分钟
 
-> 参见 [Server Self Preservation Mode](https://github.com/Netflix/eureka/wiki/Server-Self-Preservation-Mode)
+参考文档：
+> [Server Self Preservation Mode](https://github.com/Netflix/eureka/wiki/Server-Self-Preservation-Mode)
 

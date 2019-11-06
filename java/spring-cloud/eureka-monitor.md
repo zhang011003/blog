@@ -89,10 +89,70 @@ eureka:
   datacenter: ds1
 ```
 
-代码如上
+代码同Environment
 
 * Current time：当前服务器时间
 * Uptime：服务器启动时间
-* Lease expiration enabled：租期超时if
+* Lease expiration enabled：租期超时是否可用，也就是是否进入自我保护模式。如果为false，表明进入自我保护模式，客户端心跳超时不会被清除。如果为true，表明没有进入自我保护模式，客户端心跳超时后会被清除
+
+从`navbar.ftl`中，可以看到，该值是从`registry.leaseExpirationEnabled`中获取的
+
+```html
+      <tr>
+        <td>Lease expiration enabled</td>
+        <td>${registry.leaseExpirationEnabled?c}</td>
+      </tr>
+```
+
+`EurekaController`中获取registry的代码如下
+
+```java
+	private PeerAwareInstanceRegistry getRegistry() {
+		return getServerContext().getRegistry();
+	}
+
+	private EurekaServerContext getServerContext() {
+		return EurekaServerContextHolder.getInstance().getServerContext();
+	}
+```
+
+可以查到`PeerAwareInstanceRegistryImpl`代码中对于的方法
+
+```java
+    public boolean isLeaseExpirationEnabled() {
+        if (!isSelfPreservationModeEnabled()) {
+            // The self preservation mode is disabled, hence allowing the instances to expire.
+            return true;
+        }
+        return numberOfRenewsPerMinThreshold > 0 && getNumOfRenewsInLastMin() > numberOfRenewsPerMinThreshold;
+    }
+```
+
+如果自我保护模式不可用，表明Eureka服务端会清除超时的客户端信息，所以直接返回true，如果自我保护模式可用，需要对`getNumOfRenewsInLastMin()`（上一分钟的续约次数）和`numberOfRenewsPerMinThreshold`（每分钟续约阈值）做比较。如果上一分钟的续约次数大于每分钟续约阈值，表明没有进入保护模式，会清除超时的客户端信息。查找代码，可以发现`numberOfRenewsPerMinThreshold`的计算方式如下
+
+```java
+@Override
+    public void openForTraffic(ApplicationInfoManager applicationInfoManager, int count) {
+        // Renewals happen every 30 seconds and for a minute it should be a factor of 2.
+        this.expectedNumberOfRenewsPerMin = count * 2;
+        this.numberOfRenewsPerMinThreshold =
+                (int) (this.expectedNumberOfRenewsPerMin * serverConfig.getRenewalPercentThreshold());
+        logger.info("Got {} instances from neighboring DS node", count);
+        logger.info("Renew threshold is: {}", numberOfRenewsPerMinThreshold);
+        
+        ...        
+}
+```
+
+30秒续约一次（即心跳周期30秒），所以一分钟要乘2。从打印信息来看，count为注册的实例数量。`count*2`算出的就是`expectedNumberOfRenewsPerMin`（每分钟期望续约数）。`numberOfRenewsPerMinThreshold`（每分钟续约的阈值）即为`expectedNumberOfRenewsPerMin`（每分钟期望续约数）`*` 续约百分比阈值。而续约百分比阈值是通过配置文件配置的，默认值为0.85
+
+```yaml
+eureka:
+  server:
+    renewal-percent-threshold: 0.85
+```
+
+
+* 
 
 

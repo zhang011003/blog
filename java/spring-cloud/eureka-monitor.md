@@ -156,6 +156,8 @@ eureka:
 
 * Renews(last min)：上一分钟续约次数。
 
-_上面三个属性的对应关系可以转化为如下伪代码_
+_***上面三个属性的对应关系为：如果Renews threshold不为0且Renews(last min) > Renews threshold，则Lease expiration enabled为true，否则为false***_
+
+
 
 

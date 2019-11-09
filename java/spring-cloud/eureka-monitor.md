@@ -152,7 +152,10 @@ eureka:
     renewal-percent-threshold: 0.85
 ```
 
+* Renews threshold：续约阈值。查看代码，发现获取的值就是`numberOfRenewsPerMinThreshold`（每分钟续约的阈值）
 
-* 
+* Renews(last min)：上一分钟续约次数。
+
+==上面三个属性的对应关系为==
 
 

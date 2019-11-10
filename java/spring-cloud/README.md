@@ -5,9 +5,9 @@
 - 2019-11-10
   - [Eureka概览](eureka-introduction.md)  
 - 2019-10-24
-  - [Eureka](eureka.md)  
+  - [Eureka服务端和客户端的创建](eureka.md)  
 - 2019-10-27
-  - [eureka其它特性](eureka2.md)   
+  - [Eureka其它特性](eureka2.md)   
 - 2019-11-02
   - [Eureka监控页面](eureka-monitor.md)    
 - 2019-11-03

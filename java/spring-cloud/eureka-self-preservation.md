@@ -28,7 +28,7 @@ eureka:
 
 enable-self-preservation表示是否开始自我保护，默认为true
 
-renewal-percent-threshold表示当续约数降到指定的百分比下时，如果enable-self-preservation为trie，就开启自我保护模式，也就是说服务器不再清除未知状态的客户端。默认为0.85，即85%
+renewal-percent-threshold表示当续约数降到指定的百分比下时，如果enable-self-preservation为true，就开启自我保护模式，也就是说服务器不再清除未知状态的客户端。默认为0.85，即85%
 
 renewal-threshold-update-interval-ms表示renewal-percent-threshold更新的时间间隔。单位为ms，默认为15分钟
 

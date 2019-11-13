@@ -8,4 +8,6 @@
   - [Eureka监控页面](eureka-monitor.md)    
   - [Eureka自我保护模式](eureka-self-preservation.md)  
   - [Eureka客户端和服务端交互步骤](eureka-client-server-interaction.md)  
+- Feign
+  - [Feign使用](using-feign.md)    
 

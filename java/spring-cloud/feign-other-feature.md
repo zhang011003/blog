@@ -108,3 +108,180 @@ feign:
 >
 > > 这个具体原因在SpringCloud Feign的对应文档中没有给出具体解释，但之前有做过分析，可参考  [Spring Cloud中hystrix两种隔离策略](..\spring-hystrix-isolate.md)  
 
+## 手工创建Feign客户端
+
+如果上面创建feign客户端的方法都无法使用，就需要用到Feign Builder API来创建，例子如下:
+
+```java
+@Import(FeignClientsConfiguration.class)
+class FooController {
+
+	private FooClient fooClient;
+
+	private FooClient adminClient;
+
+    	@Autowired
+	public FooController(Decoder decoder, Encoder encoder, Client client, Contract contract) {
+		this.fooClient = Feign.builder().client(client)
+				.encoder(encoder)
+				.decoder(decoder)
+				.contract(contract)
+				.requestInterceptor(new BasicAuthRequestInterceptor("user", "user"))
+				.target(FooClient.class, "http://PROD-SVC");
+
+		this.adminClient = Feign.builder().client(client)
+				.encoder(encoder)
+				.decoder(decoder)
+				.contract(contract)
+				.requestInterceptor(new BasicAuthRequestInterceptor("admin", "admin"))
+				.target(FooClient.class, "http://PROD-SVC");
+    }
+}
+```
+> 其中`FeignClientsConfiguration.class`是SpringCloud提供的默认配置
+> `PROD-SVC`是客户端希望请求的服务名称
+> `Contract`对象定义了接口中有效的注解和值。自动织入的`Contract`bean提供了对SpringMVC注解的支持，而不是默认的Feign的注解。
+
+## Feign对Hystrix的支持
+
+如果Hystrix在类路径上，并且`feign.hystrix.enabled=true`，Feign会将所有方法用断路器包裹。返回`com.netflix.hystrix.HystrixCommand`也可以。这样可以使用响应模式（调用`.toObservable()`或者`.observe()`)或者异步使用（通过调用`.queue()`）
+
+如果不想使用Hystrix，需要创建`Feign.Builder`,scope为prototype
+```java
+@Configuration
+public class FooConfiguration {
+    	@Bean
+	@Scope("prototype")
+	public Feign.Builder feignBuilder() {
+		return Feign.builder();
+	}
+}
+```
+
+## Feign Hystrix回退方法
+
+Hystrix支持回退方法，也就是当断路器打开或有错误时的默认代码。如果希望`@FeignClient`支持回退方法，设置`fallback`属性为实现了回退的类名称。也需要将实现定义为Spring的bean
+
+```java
+@FeignClient(name = "hello", fallback = HystrixClientFallback.class)
+protected interface HystrixClient {
+    @RequestMapping(method = RequestMethod.GET, value = "/hello")
+    Hello iFailSometimes();
+}
+
+static class HystrixClientFallback implements HystrixClient {
+    @Override
+    public Hello iFailSometimes() {
+        return new Hello("fallback");
+    }
+}
+```
+
+如果需要访问触发调用回退方法的原因，可以使用`@FeignClient`的`fallbackFactory`
+
+```java
+@FeignClient(name = "hello", fallbackFactory = HystrixClientFallbackFactory.class)
+protected interface HystrixClient {
+	@RequestMapping(method = RequestMethod.GET, value = "/hello")
+	Hello iFailSometimes();
+}
+
+@Component
+static class HystrixClientFallbackFactory implements FallbackFactory<HystrixClient> {
+	@Override
+	public HystrixClient create(Throwable cause) {
+		return new HystrixClient() {
+			@Override
+			public Hello iFailSometimes() {
+				return new Hello("fallback; reason was: " + cause.getMessage());
+			}
+		};
+	}
+}
+```
+
+> Feign中使用回退方法实现以及Hystrix的回退方法工作模式有一个限制。回退方法目前不支持返回`com.netflix.hystrix.HystrixCommand`和`rx.Observable`
+
+## Feign和`@Primary`
+
+当使用Feign的Hystrix回退方法时，在`ApplicationContext`中会有多个相同类型的bean。这会导致`@Autowired`无法工作，因为有不止一个bean，或标识为primary的bean。为了能够工作，SpringCloud用`@Primary`标记了所有Feign实例，因此Spring框架知道哪个bean被注入。某些情况，这个不是想要的。可以设置`@FeignClient`的`primary`为false
+
+```java
+@FeignClient(name = "hello", primary = false)
+public interface HelloClient {
+	// methods here
+}
+```
+
+## Feign继承
+
+```java
+public interface UserService {
+
+    @RequestMapping(method = RequestMethod.GET, value ="/users/{id}")
+    User getUser(@PathVariable("id") long id);
+}
+```
+
+```java
+@RestController
+public class UserResource implements UserService {
+
+}
+```
+
+```java
+package project.user;
+
+@FeignClient("users")
+public interface UserClient extends UserService {
+
+}
+```
+
+> 通常不建议服务端和客户端共享接口。会导致紧耦合。并且在SpringMVC当前表单中也不起作用（方法参数不支持映射）。
+
+## Feign请求/响应压缩
+
+可以如下设置
+
+```yaml
+feign.compression.request.enabled=true
+feign.compression.response.enabled=true
+```
+Feign请求压缩设置类似于对web server的设置
+
+```yaml
+feign.compression.request.enabled=true
+feign.compression.request.mime-types=text/xml,application/xml,application/json
+feign.compression.request.min-request-size=2048
+```
+
+## Feign日志
+
+默认的logger名称是创建feign客户端的全路径。Feign日志只有设置`DEBUG`级别才有效
+
+```yaml
+logging.level.project.user.UserClient: DEBUG
+```
+
+每个客户端都可以配置`Logger.Level`，可以配置的值有
+
+- NONE，不记录日志（默认）
+- BASIC，只记录请求方法和URL以及响应状态和执行时长
+- HEADERS，记录的基本信息以及请求和响应头
+- FULL，记录了请求和响应的消息头、消息体以及源数据
+
+如下设置`Logger.Level`为`FULL`
+
+```java
+@Configuration
+public class FooConfiguration {
+    @Bean
+    Logger.Level feignLoggerLevel() {
+        return Logger.Level.FULL;
+    }
+}
+```
+
+

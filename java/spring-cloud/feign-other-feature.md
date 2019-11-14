@@ -88,3 +88,23 @@ feign:
         contract: com.example.SimpleContract
 ```
 
+可以通过指定` @EnableFeignClients `的 `defaultConfiguration`  属性来配置所有feign客户端。
+
+默认配置也可以通过如下方式配置，只需要将feinName修改为`default`即可
+
+```yaml
+feign:
+  client:
+    config:
+      default:
+        connectTimeout: 5000
+        readTimeout: 5000
+        loggerLevel: basic
+```
+
+如果` @Configuration `方式和属性配置方式都有，默认使用属性配置。也可以通过` feign.client.default-to-properties`为`false`来修改。
+
+> 如果需要 `ThreadLocal`  绑定变量到` RequestInterceptor `,需要设置 Hystrix  线程隔离为`SEMAPHORE`(`hystrix.command.default.execution.isolation.strategy=SEMAPHORE`)或者设置feign中的Hystrix  不可用(`feign.hystrix.enabled=false`)
+>
+> > 这个具体原因在SpringCloud Feign的对应文档中没有给出具体解释，但之前有做过分析，可参考  [Spring Cloud中hystrix两种隔离策略](..\spring-hystrix-isolate.md)  
+

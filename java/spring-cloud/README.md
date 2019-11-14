@@ -10,4 +10,5 @@
   - [Eureka客户端和服务端交互步骤](eureka-client-server-interaction.md)  
 - Feign
   - [Feign使用](using-feign.md)    
+  -  [Feign其它特性](feign-other-feature.md) 
 

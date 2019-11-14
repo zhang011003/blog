@@ -1,4 +1,4 @@
-#Feign使用 
+# Feign使用 
 
 ## Feign概览
 
@@ -26,7 +26,7 @@ public class ServiceProviderController {
 
  1. 新建maven工程`spring-cloud-service-consumer`，修改`spring.application.name`为`service-consumer`。
  2. 程序启动类上增加`@EnableFeignClients`注解开启Feign的支持。
- 
+
 ```java
 @SpringBootApplication
 @EnableEurekaClient
@@ -39,7 +39,7 @@ public class ServiceConsumerApplication {
 ```
 
  3. 增加`ServiceProviderFeignClient`接口，并增加`@FeignClient`注解，其中`value`为我们刚刚启动的服务名。
- 
+
 ```java
 @FeignClient("service-provider")
 public interface ServiceProviderFeignClient {
@@ -49,7 +49,7 @@ public interface ServiceProviderFeignClient {
 ```
 
  4. 创建一个简单的controller提供对service-provider服务的调用。
- 
+
 ```java
 @RestController
 public class ServiceConsumerController {

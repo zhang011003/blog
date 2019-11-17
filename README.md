@@ -5,6 +5,8 @@
 
 后续更新的blog就在这里列出，以日期分隔
 
+* 2019-11-17
+    - [SpringBoot的`spring-autoconfigure-metadata.properties`配置文件作用](java/springboot-autoconfigure-module.md)
 * 2019-10-23
     - [Spring Cloud学习笔记](java/spring-cloud/README.md) 
 * 2019-10-16

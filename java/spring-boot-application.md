@@ -137,4 +137,7 @@ public class CacheAutoConfiguration {
 ```
 SpringBoot中提供了一系列的@ConditionalOnXXX的注解，称为条件注解。对这些条件注解的支持也是SpringBoot的核心思想，正是通过这些条件注解，SpringBoot做到了需要什么功能，就增加什么依赖包这种动态可插拔的机制。
 
+-------
+2019-11-17 补充：
 
+其实之前理解的`org.springframework.boot.autoconfigure.AutoConfigurationImportSelector#selectImports`不太准确。之前理解的是查找需要导入的`@Configuration`注解的类，这两天发现并不是查找`@Configuration`，而是查找`spring-autoconfigure-metadata.properties`中带有`ConditionalOnClass`文字的类，参考[SpringBoot的`spring-autoconfigure-metadata.properties`配置文件作用](springboot-autoconfigure-module.md)

@@ -12,4 +12,5 @@
   - [Feign使用](using-feign.md)    
   - [Feign其它特性](feign-other-feature.md) 
   - [Feign源码学习](feign-src-study.md)
-
+- Hystrix
+  - [Hystrix使用](using-hystrix.md) 

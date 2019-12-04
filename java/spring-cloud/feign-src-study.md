@@ -88,7 +88,7 @@ public FeignContext() {
 	}
 ```
 
-其它注册的就是后续需要用到的各种不同的bean
+其它通过注解注册的就是后续需要用到的各种不同的bean
 
 ## 通过工厂bean来获取相应的bean实例
 
@@ -152,6 +152,27 @@ public Object getObject() throws Exception {
 
 `FeignContext`的`getInstance`方法会先创建`AnnotationConfigApplicationContext`类实例，再通过`AnnotationConfigApplicationContext`类实例的`getBean`方法获取。
 
+```java
+public <T> T getInstance(String name, Class<T> type) {
+    AnnotationConfigApplicationContext context = getContext(name);
+    if (BeanFactoryUtils.beanNamesForTypeIncludingAncestors(context,
+    		type).length > 0) {
+    	return context.getBean(type);
+    }
+    return null;
+}
+protected AnnotationConfigApplicationContext getContext(String name) {
+	if (!this.contexts.containsKey(name)) {
+		synchronized (this.contexts) {
+			if (!this.contexts.containsKey(name)) {
+				this.contexts.put(name, createContext(name));
+			}
+		}
+	}
+	return this.contexts.get(name);
+}
+```
+
 在`createContext`方法中，会注册之前传入的`FeignClientSpecification`以及默认的配置类型`defaultConfigType`，也就是`FeignClientsConfiguration`类，还有`PropertyPlaceholderAutoConfiguration`类
 
 ```java
@@ -204,6 +225,24 @@ protected <T> T loadBalance(Feign.Builder builder, FeignContext context,
 
 其中的`Targeter`类的bean在`FeignAutoConfiguration`中注入，最终会调用到`ReflectiveFeign`的`newInstance`方法。
 
+`feign/Feign.java`
+```java
+public <T> T target(Target<T> target) {
+  return build().newInstance(target);
+}
+
+public Feign build() {
+  SynchronousMethodHandler.Factory synchronousMethodHandlerFactory =
+      new SynchronousMethodHandler.Factory(client, retryer, requestInterceptors, logger,
+                                           logLevel, decode404, closeAfterDecode);
+  ParseHandlersByName handlersByName =
+      new ParseHandlersByName(contract, options, encoder, decoder, queryMapEncoder,
+                              errorDecoder, synchronousMethodHandlerFactory);
+  return new ReflectiveFeign(handlersByName, invocationHandlerFactory, queryMapEncoder);
+}
+```
+
+`feign/ReflectiveFeign.java`
 ```java
 public <T> T newInstance(Target<T> target) {
     Map<String, MethodHandler> nameToHandler = targetToHandlersByName.apply(target);
@@ -231,4 +270,4 @@ public <T> T newInstance(Target<T> target) {
   }
 ```
 
-在这里会看到通过反射的方式创建`@FeignClient`注解的接口
+在这里会看到通过代理的方式创建`@FeignClient`注解的接口

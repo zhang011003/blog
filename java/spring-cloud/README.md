@@ -13,4 +13,5 @@
   - [Feign其它特性](feign-other-feature.md) 
   - [Feign源码学习](feign-src-study.md)
 - Hystrix
+  - [断路器模式简介](circuit-breaker-intro.md)
   - [Hystrix使用](using-hystrix.md) 

@@ -10,13 +10,13 @@
    
    如果返回单个响应，则构造`HystrixCommand`对象
    
-   ```
+   ```java
    HystrixCommand command = new HystrixCommand(arg1, arg2);
    ```
    
    如果返回的是持续发出响应的Observable对象，则构造`HystrixObservableCommand`对象
    
-   ```
+   ```java
    HystrixObservableCommand command = new HystrixObservableCommand(arg1, arg2);
    ```
 
@@ -32,7 +32,7 @@
    
    - `toObservable()`：返回`Observable`对象，当你订阅它时，会执行Hystrix命令并产生响应
      
-     ```
+     ```java
      K             value   = command.execute();
      Future<K>     fValue  = command.queue();
      Observable<K> ohValue = command.observe();         //hot observable

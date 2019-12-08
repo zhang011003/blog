@@ -9,7 +9,7 @@
 
 如果你想让线程本地上下文传递到`@HystrixCommand`中，默认的声明是不起作用的，因为默认是在线程池中执行的（以防超时）。可以通过配置或注解修改隔离策略，将Hystrix切换为使用相同的线程。参考下面的例子
 
-```
+```java
 @HystrixCommand(fallbackMethod = "stubMyService",
     commandProperties = {
       @HystrixProperty(name="execution.isolation.strategy", value="SEMAPHORE")
@@ -25,7 +25,7 @@
 
 连接的断路器状态通过`/health`来暴露
 
-```
+```json
 {
     "hystrix": {
         "openCircuitBreakers": [
@@ -41,7 +41,7 @@
 
 想要使用Hystrix监控流，需要包含依赖`spring-boot-starter-actuator`以及设置`management.endpoints.web.exposure.include: hystrix.stream`。这样就可以暴露监控端点`/actuator/hystrix.stream`
 
-```
+```xml
     <dependency>
         <groupId>org.springframework.boot</groupId>
         <artifactId>spring-boot-starter-actuator</artifactId>

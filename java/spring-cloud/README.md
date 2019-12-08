@@ -15,3 +15,7 @@
 - Hystrix
   - [断路器模式简介](circuit-breaker-intro.md)
   - [Hystrix使用](using-hystrix.md) 
+  - [Hystrix其它特性](hystrix-other-feature.md)
+  - [Hystrix是如何工作的](how-hystrix-works.md)
+
+

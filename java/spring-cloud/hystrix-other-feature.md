@@ -50,13 +50,13 @@
 
 ## Hystrix监控台(Hystrix Dashboard)
 
-Hystrix最大的优势就是收集每一个HystrixCommand的指标信息。Hystrix监控台显示来每一个断路器的健康信息。
+Hystrix最大的优势就是收集每一个HystrixCommand的指标信息。Hystrix监控台显示了每一个断路器的健康信息。
 
 ![](../../screenshot/spring-cloud/Hystrix-dashboard.png)
 
 要想引入Hystrix监控台，增加如下依赖(不同版本的Spring Cloud引用依赖的groupId和artifactId不一样)
 
-```
+```xml
  <dependency>
      <groupId>org.springframework.cloud</groupId>
      <artifactId>spring-cloud-starter-netflix-hystrix-dashboard</artifactId>
@@ -69,4 +69,4 @@ Hystrix最大的优势就是收集每一个HystrixCommand的指标信息。Hystr
 
 ## Hystrix超时以及Ribbon客户端
 
-当使用包裹来Ribbon客户端的Hystrix command时，你需要确保Hystrix超时配置大于Ribbon客户端的超时，包括各种可能的重试。比如如果Ribbon连接超时是1秒，Ribbon客户端可能会重试三次请求，那么Hystrix超时就需要大于三秒。
+当使用包裹了Ribbon客户端的Hystrix命令时，你需要确保Hystrix超时配置大于Ribbon客户端的超时，包括各种可能的重试。比如如果Ribbon连接超时是1秒，Ribbon客户端可能会重试三次请求，那么Hystrix超时就需要大于三秒。

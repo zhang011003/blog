@@ -17,5 +17,7 @@
   - [Hystrix使用](using-hystrix.md) 
   - [Hystrix其它特性](hystrix-other-feature.md)
   - [Hystrix是如何工作的](how-hystrix-works.md)
+  - [Hystrix插件](hystrix-plugins.md)
+  - [Hystrix监控台](hystrix-dashboard.md)
 
 

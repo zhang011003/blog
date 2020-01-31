@@ -48,9 +48,8 @@ org.hswebframework.web.authorization.basic.aop.AopAuthorizingController类在hsw
 
 主要作用：每次方法调用时对角色权限进行验证，对数据权限进行过滤。定义角色权限和数据权限的先后验证顺序。
 
+## SystemInitializeAutoConfiguration
 
+org.hswebframework.web.starter.SystemInitializeAutoConfiguration类在hsweb-spring-boot-starter模块下。
 
-
-
-
-
+主要作用：初始化脚本引擎、初始化数据库。详见[hs-web中的数据库初始化](hs-web-classes.md)

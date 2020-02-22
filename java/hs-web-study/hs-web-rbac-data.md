@@ -1,10 +1,10 @@
 # hs-web角色权限和数据权限验证逻辑
 
-角色权限和数据权限验证逻辑都在DefaultAuthorizingHandler类中，其中handRBAC方法是验证角色权限，handleDataAccess方法是验证数据权限。
+角色权限和数据权限验证逻辑都在`DefaultAuthorizingHandler`类中，其中`handRBAC`方法是验证角色权限，`handleDataAccess`方法是验证数据权限。
 
 ## 角色权限验证逻辑
 
-1. 发布AuthorizingHandleBeforeEvent事件，如果不需要进行权限验证，则isAllow返回true。主要是针对一些特殊用户来取消权限验证，比如admin，demo中启动类就监听了该接口并设置allow为true
+1. 发布`AuthorizingHandleBeforeEvent`事件，如果不需要进行权限验证，则`isAllow`返回`true`。主要是针对一些特殊用户来取消权限验证，比如admin，demo中启动类就监听了该接口并设置`allow`为`true`。`UserAllowPermissionHandler`类也监听了该事件，这样可以通过配置来直接过滤哪些用户或者角色不需要进行权限的过滤而直接访问。不过目前配置只支持rbac权限过滤，不支持数据权限过滤
 2. 进行rbac权限验证
 3. 进行表达式权限验证
 
@@ -87,16 +87,16 @@ protected void handleRBAC(Authentication authentication, AuthorizeDefinition def
 }
 ```
 
-1. 如果定义的permission不为空，通过如下逻辑过滤当前用户的permission
-    1. 定义的permission不包含当前用户的permission，说明没有权限，返回false
-    2. 定义的action没有配置，返回true
-    3. 定义的action不包含当前用户的action，说明没有操作权限，返回false
-    4. 如果控制逻辑为or，则返回true；否则控制逻辑为and，需要当前用户的action包含所有定义的action
-2. 如果控制逻辑为or，则只要返回的当前用户的permission不为空就可以访问，否则需要返回的当前用户的permission和定义的permission数量一致才可以访问。也就是说，当前用户的permission要全部包含定义的permission
-3. 如果定义的role不为空（角色名称匹配），如果控制逻辑为or，则任意定义的role包含当前用户的role即可，否则，定义的role都需要包含当前用户的role
-4. 如果定义的user不为空（用户名称匹配），如果控制逻辑为or，则任意定义的user包含当前用户的user即可，否则，定义的user都需要包含当前用户的user
+1. 如果定义的`permission`不为空，通过如下逻辑过滤当前用户的`permission`
+   1. 方法上定义的`permission`不包含当前用户的`permission`，说明没有权限，返回`false`
+   2. 定义的`action`没有配置，返回`true`
+   3. 定义的`action`不包含当前用户的`action`，说明没有操作权限，返回`false`
+   4. 如果控制逻辑为`or`，则返回`true`；否则控制逻辑为`and`，需要当前用户的`action`包含所有定义的`action`
+2. 如果控制逻辑为`or`，则只要返回的当前用户的`permission`不为空就可以访问，否则需要返回的当前用户的`permission`和定义的`permission`数量一致才可以访问。也就是说，当前用户的`permission`要全部包含定义的`permission`
+3. 如果定义的`role`不为空（角色名称匹配），如果控制逻辑为`or`，则任意定义的`role`包含当前用户的`role`即可，否则，定义的`role`都需要包含当前用户的`role`
+4. 如果定义的`user`不为空（用户名称匹配），如果控制逻辑为`or`，则任意定义的`user`包含当前用户的`user`即可，否则，定义的`user`都需要包含当前用户的`user`
 
-如果验证通过，则返回，否则抛出AccessDenyException异常
+如果验证通过，则返回，否则抛出`AccessDenyException`异常
 
 如下是第三步中表达式权限验证代码
 
@@ -176,11 +176,9 @@ public void handleDataAccess(AuthorizingContext context) {
 
 }
 ```
- 
-1. dataAccessController如果为空，则直接返回。默认的dataAccessController为DefaultDataAccessController
+
+1. `dataAccessController`如果为空，则直接返回。默认的`dataAccessController`为`DefaultDataAccessController`
 2. 没有定义数据访问权限，则直接返回
-3. 发布AuthorizingHandleBeforeEvent事件，同rbac权限第一步一致
-4. 获取定义的permission包含当前用户permission的所有permission
-5. 根据过滤出的permission获取对应的action，并获取定义的action包含当前用户action的所有action
-
-
+3. 发布`AuthorizingHandleBeforeEvent`事件，同rbac权限第一步一致
+4. 获取定义的`permission`包含当前用户`permission`的所有`permission`
+5. 根据过滤出的`permission`获取对应的`action`，并获取定义的`action`包含当前用户`action`的所有`action`

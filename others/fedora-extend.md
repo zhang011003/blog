@@ -161,12 +161,12 @@ I/O size (minimum/optimal): 512 bytes / 512 bytes
   Alloc PE / Size       2303 / <9.00 GiB
   Free  PE / Size       0 / 0   
   VG UUID               xAtGSL-culJ-bFM1-xZrA-pQzA-Gien-mwYpXY
-   
+
 
 [zhang011003@localhost ~]$ sudo vgextend /dev/mapper/fedora_localhost--live-root /dev/sda3
   Volume group name "fedora_localhost-live/root" has invalid characters.
   Cannot process volume group fedora_localhost-live/root
-   
+
 [zhang011003@localhost ~]$ df -h
 Filesystem                               Size  Used Avail Use% Mounted on
 devtmpfs                                 2.0G     0  2.0G   0% /dev
@@ -182,7 +182,7 @@ tmpfs                                    395M   11M  384M   3% /run/user/1000
 
 [zhang011003@localhost ~]$ sudo vgextend /dev/mapper/fedora_localhost--live /dev/sda3
   Volume group "fedora_localhost-live" successfully extended
-   
+
 [zhang011003@localhost ~]$ sudo pvdisplay
   --- Physical volume ---
   PV Name               /dev/sda2
@@ -194,7 +194,7 @@ tmpfs                                    395M   11M  384M   3% /run/user/1000
   Free PE               0
   Allocated PE          2303
   PV UUID               Q2qo9C-eX8C-JOf0-wqom-kFU8-m5kS-wIy7Um
-   
+
   --- Physical volume ---
   PV Name               /dev/sda3
   VG Name               fedora_localhost-live
@@ -205,7 +205,7 @@ tmpfs                                    395M   11M  384M   3% /run/user/1000
   Free PE               2559
   Allocated PE          0
   PV UUID               HTk1Nt-J0X5-qwir-pcna-G9x6-MH5P-cqKXyu
-   
+
 [zhang011003@localhost ~]$ sudo lvdisplay
   --- Logical volume ---
   LV Path                /dev/fedora_localhost-live/swap
@@ -223,7 +223,7 @@ tmpfs                                    395M   11M  384M   3% /run/user/1000
   Read ahead sectors     auto
   - currently set to     256
   Block device           253:1
-   
+
   --- Logical volume ---
   LV Path                /dev/fedora_localhost-live/root
   LV Name                root
@@ -240,7 +240,7 @@ tmpfs                                    395M   11M  384M   3% /run/user/1000
   Read ahead sectors     auto
   - currently set to     256
   Block device           253:0
-   
+
 [zhang011003@localhost ~]$ sudo lvextend -L+11G /dev/fedora_localhost-live/root
   Insufficient free space: 2816 extents needed, but only 2559 available
 
@@ -279,3 +279,21 @@ D_DRIVE                                  932G   43G  889G   5% /media/sf_D_DRIVE
 tmpfs                                    395M   13M  382M   4% /run/user/1000
 /dev/sr0                                  56M   56M     0 100% /run/media/zhang011003/VBox_GAs_5.2.8
 ```
+
+---
+
+2020-2-23补充：
+
+今天又扩充了一次，发现上边的步骤少了一步，现在补充一下。
+
+想要操作之前的步骤需要先分配空间
+
+在VirtualBox中工具菜单选择介质
+
+![介质](../screenshot/virtualbox-medium.png)
+
+在介质界面，调整可用的空间大小
+
+![调整空间大小](../screenshot/virtualbox-medium-resize.png)
+
+点击确定后再执行之前的步骤即可

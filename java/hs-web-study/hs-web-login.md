@@ -322,9 +322,13 @@ public UserToken signIn(String token, String type, String userId, long maxInacti
 
 1. 构造`SimpleUserToken`类实例
 2. 根据`type`获取`AllopatricLoginMode`类
-3. 如果为`deny`，缓存中获取`userId`对应的`UserToken`，判断`type`是否相同，判断是否超时，判断状态是否为正常。如果都满足，则抛出`AccessDenyException`
-4. 如果为`offlineOther`，缓存中获取`userId`对应的`UserToken`，如果`type`相同，设置状态为`offline`
-5. 否则，设置状态为`normal`，缓存`token`，发布`UserTokenCreatedEvent`事件并返回
+3. 如果为`deny(如在其它地方登录，则拒绝登录)`，缓存中获取`userId`对应的`UserToken`，判断`type`是否相同，判断是否超时，判断状态是否为正常。如果都满足，则抛出`AccessDenyException`
+4. 如果为`offlineOther(如在其它地方登录，则将已登录的用户下线)`，缓存中获取`userId`对应的`UserToken`，如果`type`相同，设置状态为`offline`
+5. 设置状态为`normal`，缓存`token`，发布`UserTokenCreatedEvent`事件并返回
+
+调用完该方法后，将`newToken.getResponse()`放入`event.getResult()`中。
+
+在完成这些调用后，`doLogin`接口将`event.getResult()`结果返回。
 
 登录接口调用完成
 

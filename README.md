@@ -4,6 +4,10 @@
 
 后续更新的blog就在这里列出，以日期分隔
 
+- 2020-3-8
+  
+  - [Spring OAuth例子](java/spring-oauth-example.md)
+
 -  2020-2-13 
   
   - [java8 lambda](java/java8-lambda.md)

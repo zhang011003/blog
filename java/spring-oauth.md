@@ -25,11 +25,11 @@ OAuth 2.0提供者机制用于暴露OAuth 2.0保护的资源。配置包括建�
 
 当配置鉴权服务的时候，必须考虑客户端用于获取访问token的授权类型（如：鉴权码，用户凭证，刷新token）。服务端的配置用来提供客户端详情服务和token服务的实现，以及全局配置某些切面是否可用。但是要注意，每个客户端可以单独配置权限，以便能够使用某种授权机制和访问授权，也就是说，仅仅是因为提供者配置支持“客户凭据”授权类型，它并不代表特定客户端能够使用那种鉴权类型来授权。
 
-@EnableAuthorizationServer注解用于配置OAuth 2.0鉴权服务机制，与实现了`AuthorizationServerConfigurer`的`@Bean`配合使用（已提供便利的空方法实现的适配器）。如下的特性委派给各自的配置，它们由Spring创建且传递到AuthorizationServerConfigurer中。
+`@EnableAuthorizationServer`注解用于配置OAuth 2.0鉴权服务机制，与实现了`AuthorizationServerConfigurer`的`@Bean`配合使用（已提供便利的空方法实现的适配器）。如下的特性委派给各自的配置，它们由Spring创建且传递到`AuthorizationServerConfigurer`中。
 
-- ClientDetailsServiceConfigurer：定义了客户端详情服务的配置。客户端详情可以被初始化，也可以指定到存在的store
-- AuthorizationServerSecurityConfigurer：定义了token端点的安全常量
-- AuthorizationServerEndpointsConfigurer：定义了鉴权和token端点和token服务
+- `ClientDetailsServiceConfigurer`：定义了客户端详情服务的配置。客户端详情可以被初始化，也可以指定到存在的store
+- `AuthorizationServerSecurityConfigurer`：定义了token端点的安全常量
+- `AuthorizationServerEndpointsConfigurer`：定义了鉴权和token端点和token服务
 
 提供者配置的一个重要的方面是向OAuth客户端提供授权码的方式（在授权码授权情况下）。授权码由OAuth客户端通过直连终端用户和鉴权页面方式来获得，用户在终端页面输入凭据，然后带着授权码从提供者鉴权服务器跳回到OAuth客户端。这在OAuth 2的规范中有详细的例子。
 
@@ -39,11 +39,11 @@ OAuth 2.0提供者机制用于暴露OAuth 2.0保护的资源。配置包括建�
 
 `ClientDetailsServiceConfigurer`（从`AuthorizationServerConfigurer`的回调）用于定义客户端详情服务的内存中或jdbc实现。客户端重要的的属性有：
 
-- clientId：（必须）客户端id
-- secret：（对于信任客户端必须）客户端密码
-- scope：客户端限定的范围。如果scope未定义或者为空（默认情况），客户端不被限定范围
-- authorizedGrantTypes：客户端鉴权使用的授权类型。默认为空
-- authorities：授予给客户端的权限（常规的Spring Security权限）
+- `clientId`：（必须）客户端id
+- `secret`：（对于信任客户端必须）客户端密码
+- `scope`：客户端限定的范围。如果scope未定义或者为空（默认情况），客户端不被限定范围
+- `authorizedGrantTypes`：客户端鉴权使用的授权类型。默认为空
+- `authorities`：授予给客户端的权限（常规的Spring Security权限）
 
 客户端详情在运行中的应用中可以通过直接访问存储（例如：如果使用`JdbcClientDetailsService`则是数据库表）或者通过`ClientDetailsManager`接口（两者都实现了`ClientDetailsService`接口）来更新。
 
@@ -74,11 +74,11 @@ OAuth 2.0提供者机制用于暴露OAuth 2.0保护的资源。配置包括建�
 
 授权类型由`AuthorizationEndpoint`支持，通过`AuthorizationServerEndpointsConfigurer`配置。默认所有授权类型都支持，除了password（参见下面如何开启）。如下的属性影响授权类型：
 
-- authenticationManager：通过注入`AuthenticationManager`开启password授权
-- userDetailsService：如果注入`UserDetailsService`，或者全局有配置（如在`GlobalAuthenticationManagerConfigurer`中配置），则刷新token授权会包括用户详情的检查，用来确保账户仍然可用
-- authorizationCodeServices：定义了授权码服务（`AuthorizationCodeServices`的实例）用于授权码授权
-- implicitGrantService：管理隐式授权期间的状态
-- tokenGranter：`TokenGranter`（完全控制授权，忽略上面提到的其它的属性）
+- `authenticationManager`：通过注入`AuthenticationManager`开启password授权
+- `userDetailsService`：如果注入`UserDetailsService`，或者全局有配置（如在`GlobalAuthenticationManagerConfigurer`中配置），则刷新token授权会包括用户详情的检查，用来确保账户仍然可用
+- `authorizationCodeServices`：定义了授权码服务（`AuthorizationCodeServices`的实例）用于授权码授权
+- `implicitGrantService`：管理隐式授权期间的状态
+- `tokenGranter`：`TokenGranter`（完全控制授权，忽略上面提到的其它的属性）
 
 XML中，授权类型在`authorization-server`的子节点中配置
 
@@ -151,10 +151,10 @@ token端点默认由Spring OAuth通过`@Configuration`配置，通过使用HTTP 
 
 ```java
 @Override
-		public void configure(AuthorizationServerSecurityConfigurer oauthServer) throws Exception {
-			oauthServer.tokenKeyAccess("isAnonymous() || hasAuthority('ROLE_TRUSTED_CLIENT')").checkTokenAccess(
-					"hasAuthority('ROLE_TRUSTED_CLIENT')");
-		}
+        public void configure(AuthorizationServerSecurityConfigurer oauthServer) throws Exception {
+            oauthServer.tokenKeyAccess("isAnonymous() || hasAuthority('ROLE_TRUSTED_CLIENT')").checkTokenAccess(
+                    "hasAuthority('ROLE_TRUSTED_CLIENT')");
+        }
 ```
 
 在这个例子中，我们配置了`/oauth/check_token`和`/oauth/token_key` 端点（因此可信资源能够获取用于JWT验证的public key）。通过HTTP Basic鉴权方式使用用户凭据保护这两个端点。
@@ -171,16 +171,16 @@ OAuth 2.0客户端机制用于访问OAuth 2.0保护的资源。配置保护建�
 
 受保护的资源（或者说远端资源）通过[`OAuth2ProtectedResourceDetails`](https://projects.spring.io/spring-security-oauth2/src/main/java/org/springframework/security/oauth2/client/resource/OAuth2ProtectedResourceDetails.java)类型的bean定义来定义。它有如下属性：
 
-- id： 资源id。id只被客户端用于查找资源。它不会在OAuth协议中被使用。也可以用于bean的id
-- clientId：OAuth的客户端id。它用于OAuth提供者来识别客户端
-- clientSecret：资源相关的密码。默认的密码为空
-- accessTokenUri：OAuth提供者用于提供访问token的URI
-- scope：指定了访问资源的scope，逗号分隔。默认的scope未指定
-- clientAuthenticationScheme：客户端使用的用于鉴权访问token端点的scheme。建议的值：http_basic和form。默认是http_basic。参见OAuth 2规范的2.1节
+- `id`： 资源id。id只被客户端用于查找资源。它不会在OAuth协议中被使用。也可以用于bean的id
+- `clientId`：OAuth的客户端id。它用于OAuth提供者来识别客户端
+- `clientSecret`：资源相关的密码。默认的密码为空
+- `accessTokenUri`：OAuth提供者用于提供访问token的URI
+- `scope`：指定了访问资源的scope，逗号分隔。默认的scope未指定
+- `clientAuthenticationScheme`：客户端使用的用于鉴权访问token端点的scheme。建议的值：http_basic和form。默认是http_basic。参见OAuth 2规范的2.1节
 
 不同的授权类型有`OAuth2ProtectedResourceDetails` 的不同实现（如对于client_credentials类型的实现为`ClientCredentialsResource` ）。对于需要用户鉴权的授权类型有其它的属性：
 
-- userAuthorizationUri：用户如果需要授权访问资源时，被重定向的URI。注意，它不是必须的，依赖于支持哪种OAuth 2 profile
+- `userAuthorizationUri`：用户如果需要授权访问资源时，被重定向的URI。注意，它不是必须的，依赖于支持哪种OAuth 2 profile
 
 XML中`<resource/>` 元素用于创建`OAuth2ProtectedResourceDetails`类型的bean。它有上面提到的所有属性
 
@@ -201,7 +201,7 @@ private OAuth2ClientContext oauth2Context;
 
 @Bean
 public OAuth2RestTemplate sparklrRestTemplate() {
-	return new OAuth2RestTemplate(sparklr(), oauth2Context);
+    return new OAuth2RestTemplate(sparklr(), oauth2Context);
 }
 ```
 
@@ -223,10 +223,10 @@ OAuth2ClientContext放置在session范围内来独立保存不同用户的状态
 @Bean
 @Scope(value = "session", proxyMode = ScopedProxyMode.INTERFACES)
 public OAuth2RestOperations restTemplate() {
-	OAuth2RestTemplate template = new OAuth2RestTemplate(resource(), new DefaultOAuth2ClientContext(accessTokenRequest));
-	AccessTokenProviderChain provider = new AccessTokenProviderChain(Arrays.asList(new AuthorizationCodeAccessTokenProvider()));
-	provider.setClientTokenServices(clientTokenServices());
-	return template;
+    OAuth2RestTemplate template = new OAuth2RestTemplate(resource(), new DefaultOAuth2ClientContext(accessTokenRequest));
+    AccessTokenProviderChain provider = new AccessTokenProviderChain(Arrays.asList(new AuthorizationCodeAccessTokenProvider()));
+    provider.setClientTokenServices(clientTokenServices());
+    return template;
 }
 ```
 
@@ -237,4 +237,3 @@ public OAuth2RestOperations restTemplate() {
 例如为了使用Facebook，在`tonr2` 应用中有Facebook特性（你需要增加你自己的、有效的客户端id和密码 ，它们在Facebook网站上很容易生成）。
 
 Facebook token响应也包含了token过期时间不兼容的JSON（它们使用`expires` 而不是`expires_in`），所以如果你在你的应用中需要使用过期时间，你需要使用定制化的`OAuth2SerializationService`来解码。
-

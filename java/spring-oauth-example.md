@@ -40,6 +40,7 @@ OAuth2.0的四种授权模式
 ```sequence
 Title: Authorization code sequence chart
 Client->Authorization Server: 1、GET:/oauth/authorize
+Note left of Authorization Server: response_type:code\nclient_id:\nredirect_uri:\nscope:\nstate:
 Authorization Server->Client: 2、login
 Client->Authorization Server: 3、GET:/oauth/authorize
 Client->Authorization Server: 4、POST:/oauth/authorize
@@ -70,7 +71,7 @@ Client->Authorization Server: 6、/oauth/token
 
 3. 客户端再次调用第一步的申请认证接口，请求路径固定为`/oauth/authorize`，界面会提示是否需要授权给XXX用于访问XXX。
 
-4. 用户点击同意授权后，客户端使用POST方式向服务器获取授权码，请求路径固定为`/oauth/authorize`，服务器在response header中返回Location，此时包含令牌（code）
+4. 用户点击同意授权后，客户端使用POST方式向服务器获取授权码，请求路径固定为`/oauth/authorize`，服务器在response header中返回Location，此时包含认证码（code）
    
    ```
    HTTP/1.1 302 Found
@@ -102,3 +103,15 @@ public Principal user(Principal user) {
 对于其它几个授权模式，没有再去深入研究了。
 
 其实主要还是要对OAuth2.0的几个授权流程要非常了解，这样在使用SpringBoot的OAuth时上手就会很快。
+
+2020-3-25补充
+
+今天看到一个讲四种授权类型的时序图，摘抄下来学习
+
+![oauth2](../screenshot/OAuth2-sequence-flow1.png)
+
+![oauth2](../screenshot/OAuth2-sequence-flow2.png)
+
+> 参考文档：
+> 
+> [https://processon.com/view/5cf07c85e4b0bc8329e21ab8?fromnew=1](https://processon.com/view/5cf07c85e4b0bc8329e21ab8?fromnew=1)
